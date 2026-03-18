@@ -8,6 +8,70 @@ import { DetailPanel } from './components/DetailPanel';
 
 // --- 3D Scene Components ---
 
+function HolographicRings({ heat, color, isCategory, baseOpacity }) {
+  const groupRef = useRef();
+  
+  // Normalize heat to determine visual intensity
+  // Sub-nodes max around 13500, Categories max around 40000+
+  const normalizedHeat = isCategory ? (heat || 10000) / 10000 : (heat || 2000) / 3000;
+  
+  // High heat nodes get more rings (max 4)
+  const ringCount = Math.min(Math.max(Math.floor(normalizedHeat), 1), 4);
+  const baseRadius = isCategory ? 12 : 4.5;
+  
+  useFrame((state, delta) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.x += delta * (0.2 + normalizedHeat * 0.1);
+      groupRef.current.rotation.y -= delta * (0.3 + normalizedHeat * 0.1);
+      groupRef.current.rotation.z += delta * 0.1;
+    }
+  });
+
+  // Only show if visible
+  if (baseOpacity < 0.1) return null;
+
+  return (
+    <group ref={groupRef}>
+      {[...Array(ringCount)].map((_, i) => {
+        // Create an interesting offset for each ring
+        const ringRadius = baseRadius + (i * (isCategory ? 3 : 1.5));
+        const ringOpacity = Math.min((0.2 + normalizedHeat * 0.1) * baseOpacity, 0.8);
+        
+        return (
+          <group key={i} rotation={[Math.PI/2 + i * 0.4, i * 0.8, 0]}>
+            {/* The solid ring */}
+            <mesh>
+              <ringGeometry args={[ringRadius, ringRadius + (isCategory ? 0.4 : 0.2), 64]} />
+              <meshBasicMaterial 
+                color={color} 
+                transparent 
+                opacity={ringOpacity} 
+                side={THREE.DoubleSide} 
+                blending={THREE.AdditiveBlending}
+                depthWrite={false}
+              />
+            </mesh>
+          </group>
+        );
+      })}
+      
+      {/* Inner volumetric glow for very hot nodes */}
+      {normalizedHeat > 1.5 && (
+        <mesh>
+          <sphereGeometry args={[baseRadius * 1.5, 32, 32]} />
+          <meshBasicMaterial 
+            color={color} 
+            transparent 
+            opacity={Math.min(0.08 * normalizedHeat * baseOpacity, 0.3)} 
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
+    </group>
+  );
+}
+
 function ConnectionLines({ activeNode }) {
   const lineData = useMemo(() => {
     const lines = [];
@@ -108,8 +172,14 @@ function Node({ data, onClick, activeNode }) {
     return 0.1; // others fade out heavily
   }, [activeNode, data]);
 
+  // Determine core sphere scale based on heat
+  const heatScale = useMemo(() => {
+    if (data.isCategory) return 1 + Math.min((data.heat || 0) / 60000, 0.25);
+    return 0.9 + Math.min((data.heat || 0) / 15000, 0.2);
+  }, [data.heat, data.isCategory]);
+
   return (
-    <group position={data.pos} ref={meshRef}>
+    <group position={data.pos} ref={meshRef} scale={[heatScale, heatScale, heatScale]}>
       {/* Core Sphere */}
       <mesh 
         onClick={(e) => { e.stopPropagation(); onClick(data); }}
@@ -128,13 +198,13 @@ function Node({ data, onClick, activeNode }) {
         />
       </mesh>
 
-      {/* Halo Ring for Categories */}
-      {data.isCategory && (
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[11, 12, 64]} />
-          <meshBasicMaterial color={color} transparent opacity={opacity * 0.6} side={THREE.DoubleSide} />
-        </mesh>
-      )}
+      {/* Holographic Data Rings based on Heat */}
+      <HolographicRings 
+        heat={data.heat} 
+        color={color} 
+        isCategory={data.isCategory} 
+        baseOpacity={opacity} 
+      />
 
       {/* HTML Label */}
       <NodeLabel node={data} onClick={onClick} opacity={opacity} />
@@ -315,7 +385,11 @@ function App() {
       {activeNode && (
         <DetailPanel 
           node={activeNode} 
-          onClose={() => setActiveNode(null)} 
+          onClose={() => setActiveNode(null)}
+          onTopicClick={(id) => {
+            const node = DATA_NODES.find(n => n.id === id);
+            if (node) handleNodeClick(node);
+          }}
         />
       )}
       

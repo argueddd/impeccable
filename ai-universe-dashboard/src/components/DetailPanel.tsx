@@ -1,5 +1,5 @@
 import { CATEGORIES, DATA_NODES } from '../data';
-import { X, Activity, Clock, Zap, Flame, Newspaper, ArrowRight, TrendingUp, Users, Cpu, Network, MessageSquare, Share2 } from 'lucide-react';
+import { X, Activity, Clock, Zap, Flame, Newspaper, ArrowRight, ArrowLeft, TrendingUp, Users, Cpu, Network, MessageSquare, Share2 } from 'lucide-react';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
@@ -69,6 +69,7 @@ export function DetailPanel({ node, onClose, onTopicClick }: DetailPanelProps & 
 
   // Determine what to render based on whether it's a main category or a sub-topic
   const isCategory = node?.isCategory;
+  const parentNode = (!isCategory && node?.parent) ? DATA_NODES.find(n => n.id === node.parent) : null;
 
   return (
     <>
@@ -93,17 +94,43 @@ export function DetailPanel({ node, onClose, onTopicClick }: DetailPanelProps & 
                 <X size={20} />
               </button>
               
-              <span 
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 tracking-wide uppercase border"
-                style={{ 
-                  backgroundColor: `${color}10`, 
-                  color: color,
-                  borderColor: `${color}30`
-                }}
-              >
-                {isCategory ? <Network size={12} /> : <Zap size={12} />}
-                {isCategory ? '领域枢纽 (Category)' : '技术节点 (Topic)'}
-              </span>
+              {/* Back to Parent Button for Sub-nodes */}
+              {!isCategory && parentNode && (
+                <button 
+                  onClick={() => onTopicClick(parentNode.id)}
+                  className="mb-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-colors"
+                >
+                  <ArrowLeft size={14} /> 返回上级: {parentNode.title}
+                </button>
+              )}
+
+              {/* Tag indicator */}
+              {isCategory && (
+                <span 
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 tracking-wide uppercase border"
+                  style={{ 
+                    backgroundColor: `${color}10`, 
+                    color: color,
+                    borderColor: `${color}30`
+                  }}
+                >
+                  <Network size={12} />
+                  领域枢纽 (Category)
+                </span>
+              )}
+              {!isCategory && !parentNode && (
+                <span 
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 tracking-wide uppercase border"
+                  style={{ 
+                    backgroundColor: `${color}10`, 
+                    color: color,
+                    borderColor: `${color}30`
+                  }}
+                >
+                  <Zap size={12} />
+                  技术节点 (Topic)
+                </span>
+              )}
               
               <h2 className="text-3xl font-bold text-slate-900 leading-tight mb-3">
                 {node.title}
@@ -319,27 +346,19 @@ function TopicNewsFeed({ color, node, onOpenComments }: { color: string, node: a
         </div>
       </div>
       
-      <div className="space-y-5 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
+      {/* Back to Vertical List Layout */}
+      <div className="space-y-4 pb-12">
         {MOCK_NEWS.map((news, idx) => (
           <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 + idx * 0.1, type: "spring", stiffness: 260, damping: 20 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.1 }}
             key={news.id}
-            className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active"
+            className="group cursor-pointer"
           >
-            {/* Timeline Dot */}
-            <div 
-              className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-slate-50 bg-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-transform group-hover:scale-110"
-              style={{ color: color }}
-            >
-              <Zap size={14} fill={idx === 0 ? color : "none"} />
-            </div>
-            
-            {/* News Card */}
-            <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-5 rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all cursor-pointer relative overflow-hidden group-hover:border-slate-300">
-              {/* Highlight strip on the edge */}
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-hover:bg-opacity-100 transition-colors" style={{ backgroundColor: idx === 0 ? color : 'transparent' }} />
+            <div className="w-full p-5 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200 transition-all duration-300 relative overflow-hidden">
+              {/* Subtle Highlight strip on the edge */}
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-slate-100 group-hover:bg-opacity-100 transition-colors" style={{ backgroundColor: news.hot ? color : undefined }} />
               
               <div className="flex items-center gap-2 mb-2">
                 {news.hot && (
@@ -352,18 +371,18 @@ function TopicNewsFeed({ color, node, onOpenComments }: { color: string, node: a
                 <span className="text-xs font-medium text-slate-500">{news.source}</span>
               </div>
               
-              <h3 className="font-bold text-[15px] text-slate-800 leading-snug mb-2 group-hover:text-blue-600 transition-colors">
+              <h3 className="font-bold text-[14px] text-slate-800 leading-snug mb-2 group-hover:text-blue-600 transition-colors">
                 {news.title}
               </h3>
               
-              <p className="text-sm text-slate-500 leading-relaxed line-clamp-3 mb-3">
+              <p className="text-[13px] text-slate-500 leading-relaxed line-clamp-2">
                 {news.summary}
               </p>
 
               {/* Tags */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 mt-3">
                 {news.tags.map(tag => (
-                  <span key={tag} className="px-2 py-1 bg-slate-50 border border-slate-100 text-slate-500 text-[10px] font-medium rounded-md">
+                  <span key={tag} className="px-2 py-0.5 bg-slate-50 border border-slate-100 text-slate-400 text-[10px] font-medium rounded">
                     #{tag}
                   </span>
                 ))}
@@ -373,8 +392,8 @@ function TopicNewsFeed({ color, node, onOpenComments }: { color: string, node: a
         ))}
       </div>
       
-      <div className="mt-8 text-center">
-        <button className="px-6 py-2.5 rounded-full border border-slate-300 text-sm font-bold text-slate-600 hover:text-slate-900 hover:bg-white hover:shadow-sm transition-all inline-flex items-center gap-2">
+      <div className="mt-4 text-center">
+        <button className="px-6 py-2.5 rounded-full border border-slate-300 text-sm font-bold text-slate-600 hover:text-slate-900 hover:bg-white hover:shadow-sm transition-all inline-flex items-center gap-2 relative z-50 bg-slate-50/50 backdrop-blur-sm">
           加载更多 <ArrowRight size={14} />
         </button>
       </div>

@@ -16,6 +16,12 @@ export function NodeLabel({ node, onClick, opacity = 1 }: NodeLabelProps) {
   // Dynamic styles based on category/tag type
   const isCategory = node.isCategory;
   
+  // Calculate scale factor based on heat (Word Cloud concept)
+  // Quieter design: reduce the maximum scale multipliers to avoid massive text that clutters the screen
+  const heatScale = isCategory 
+    ? 1 + Math.min((node.heat || 0) / 60000, 0.25) 
+    : 0.9 + Math.min((node.heat || 0) / 15000, 0.2);
+
   if (opacity < 0.1) return null; // Don't render DOM nodes that are invisible
   
   return (
@@ -34,17 +40,18 @@ export function NodeLabel({ node, onClick, opacity = 1 }: NodeLabelProps) {
         onPointerEnter={() => setHovered(true)}
         onPointerLeave={() => setHovered(false)}
         className={clsx(
-          "cursor-pointer select-none transition-all duration-300 backdrop-blur-md border-l-2 bg-white/90 shadow-sm whitespace-nowrap",
+          "cursor-pointer select-none transition-all duration-300 backdrop-blur-md border-l-2 bg-white/80 shadow-sm whitespace-nowrap",
           isCategory 
-            ? "px-5 py-2.5 text-base font-bold border-l-4 shadow-xl" 
-            : "px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 hover:scale-110",
-          hovered && "scale-105 z-50 bg-white"
+            ? "px-4 py-2 text-sm font-bold border-l-[3px]" 
+            : "px-2.5 py-1 text-[11px] font-medium text-slate-500 hover:text-slate-800",
+          hovered && "z-50 bg-white"
         )}
         style={{
           borderColor: color,
           color: isCategory ? '#0f172a' : undefined,
-          transform: hovered ? 'scale(1.1)' : 'scale(1)',
-          boxShadow: isCategory ? `0 8px 30px ${color}20` : 'none'
+          transform: `scale(${hovered ? heatScale * 1.1 : heatScale})`,
+          transformOrigin: 'center center',
+          boxShadow: isCategory ? `0 4px 20px ${color}15` : 'none'
         }}
       >
         {node.title}
