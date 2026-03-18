@@ -1,13 +1,13 @@
-import { Trophy, Bot, LayoutDashboard, ChevronRight, Activity, Building, Users, Info, X } from 'lucide-react';
+import { Trophy, Bot, LayoutDashboard, ChevronRight, Activity, Building, Users, Info, X, FileText, Calculator, Network, PenTool, Code } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const RANKINGS = [
-  { id: 1, name: "合同智能体", creator: "张三", org: "大同智能体科技", desc: "自动提取合同关键条款、风险提示并生成审查意见，支持多版本比对。", color: "bg-red-500", glow: "shadow-[0_0_15px_rgba(239,68,68,0.5)]", activeUsers: "1.2w", totalCalls: "240w", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=contract&backgroundColor=fee2e2" },
-  { id: 2, name: "财务报销智能体", creator: "李四", org: "政企事业部", desc: "一键完成发票查验、报销单填报与流程审批，内置合规性校验引擎。", color: "bg-orange-500", glow: "shadow-[0_0_15px_rgba(249,115,22,0.5)]", activeUsers: "8.5k", totalCalls: "180w", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=finance&backgroundColor=ffedd5" },
-  { id: 3, name: "网络巡检专家", creator: "王五", org: "网络维护中心", desc: "每日自动生成全网设备巡检报告，预警隐患，支持一键派发工单。", color: "bg-yellow-400", glow: "shadow-[0_0_15px_rgba(250,204,21,0.5)]", activeUsers: "4.2k", totalCalls: "520w", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=network&backgroundColor=fef9c3" },
-  { id: 4, name: "文案生成助手", creator: "赵六", org: "市场营销部", desc: "根据产品特性自动生成多平台营销文案素材，支持配图建议。", color: "bg-slate-400", glow: "", activeUsers: "1.8w", totalCalls: "110w", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=writer&backgroundColor=f1f5f9" },
-  { id: 5, name: "代码审查专家", creator: "钱七", org: "研发中心", desc: "自动化代码规范审查、漏洞扫描，并提供重构优化建议代码片段。", color: "bg-slate-400", glow: "", activeUsers: "2.1k", totalCalls: "80w", avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=coder&backgroundColor=f1f5f9" },
+  { id: 1, name: "合同智能体", creator: "张三", org: "大同智能体科技", desc: "自动提取合同关键条款、风险提示并生成审查意见，支持多版本比对。", color: "bg-red-500 text-red-500", glow: "shadow-[0_0_15px_rgba(239,68,68,0.5)]", activeUsers: "1.2w", totalCalls: "240w", icon: FileText },
+  { id: 2, name: "财务报销智能体", creator: "李四", org: "政企事业部", desc: "一键完成发票查验、报销单填报与流程审批，内置合规性校验引擎。", color: "bg-orange-500 text-orange-500", glow: "shadow-[0_0_15px_rgba(249,115,22,0.5)]", activeUsers: "8.5k", totalCalls: "180w", icon: Calculator },
+  { id: 3, name: "网络巡检专家", creator: "王五", org: "网络维护中心", desc: "每日自动生成全网设备巡检报告，预警隐患，支持一键派发工单。", color: "bg-yellow-400 text-yellow-500", glow: "shadow-[0_0_15px_rgba(250,204,21,0.5)]", activeUsers: "4.2k", totalCalls: "520w", icon: Network },
+  { id: 4, name: "文案生成助手", creator: "赵六", org: "市场营销部", desc: "根据产品特性自动生成多平台营销文案素材，支持配图建议。", color: "bg-slate-400 text-slate-500", glow: "", activeUsers: "1.8w", totalCalls: "110w", icon: PenTool },
+  { id: 5, name: "代码审查专家", creator: "钱七", org: "研发中心", desc: "自动化代码规范审查、漏洞扫描，并提供重构优化建议代码片段。", color: "bg-slate-400 text-slate-500", glow: "", activeUsers: "2.1k", totalCalls: "80w", icon: Code },
 ];
 
 const DEPT_STATS = [
@@ -93,17 +93,13 @@ export function AgentRanking() {
                       className="flex items-start gap-3 group cursor-pointer hover:bg-slate-50/50 p-2 rounded-xl transition-colors border border-transparent hover:border-slate-100"
                       onClick={() => setSelectedAgent(agent)}
                     >
-                      <div className={`w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-[12px] font-black text-white ${agent.color} ${agent.glow} transition-transform group-hover:scale-110 mt-1 relative`}>
+                      <div className={`w-8 h-8 shrink-0 rounded-xl flex items-center justify-center ${agent.color.replace('bg-', 'bg-').replace('500', '50')} ${agent.glow} transition-transform group-hover:scale-110 mt-1 relative border ${agent.color.replace('bg-', 'border-').replace('500', '100')}`}>
                         {/* Number Badge (Moved to top-right of avatar) */}
-                        <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black text-white ${agent.color} shadow-sm border border-white z-10`}>
+                        <div className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black text-white ${agent.color.split(' ')[0]} shadow-sm z-10`}>
                           {agent.id}
                         </div>
-                        {/* Avatar Image */}
-                        <img 
-                          src={agent.avatar} 
-                          alt={agent.name} 
-                          className="w-full h-full rounded-full object-cover bg-white"
-                        />
+                        {/* Icon */}
+                        <agent.icon size={16} strokeWidth={2.5} className={agent.color.split(' ')[1]} />
                       </div>
                       
                       {/* Info Container */}
@@ -115,7 +111,7 @@ export function AgentRanking() {
                           {/* HUD Bar visible only when collapsed */}
                           {!isHovered && (
                              <div className="h-1.5 w-12 bg-slate-100 rounded-full overflow-hidden shrink-0 ml-2">
-                               <div className={`h-full ${agent.color}`} style={{ width: `${100 - (i * 15)}%` }} />
+                               <div className={`h-full ${agent.color.split(' ')[0]}`} style={{ width: `${100 - (i * 15)}%` }} />
                              </div>
                           )}
                         </div>
@@ -228,20 +224,18 @@ export function AgentRanking() {
               className="relative bg-white w-[500px] max-w-[90vw] rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-100"
             >
               {/* Top color bar matching agent rank */}
-              <div className={`h-1.5 w-full ${selectedAgent.color}`} />
+              <div className={`h-1.5 w-full ${selectedAgent.color.split(' ')[0]}`} />
               
               <div className="p-6 pb-2 flex justify-between items-start">
-                 <div className="flex items-center gap-3">
-                   <div className="relative">
-                     <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-white font-black text-xs ${selectedAgent.color} shadow-sm border-2 border-white z-10`}>
-                       {selectedAgent.id}
-                     </div>
-                     <img 
-                       src={selectedAgent.avatar} 
-                       alt={selectedAgent.name} 
-                       className={`w-12 h-12 rounded-xl object-cover bg-white shadow-lg ${selectedAgent.color} p-0.5`}
-                     />
-                   </div>
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div className={`absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-white font-black text-[10px] ${selectedAgent.color.split(' ')[0]} shadow-sm z-10`}>
+                      {selectedAgent.id}
+                    </div>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${selectedAgent.color.replace('bg-', 'bg-').replace('500', '50')} border ${selectedAgent.color.replace('bg-', 'border-').replace('500', '100')} shadow-inner`}>
+                      <selectedAgent.icon size={24} strokeWidth={2} className={selectedAgent.color.split(' ')[1]} />
+                    </div>
+                  </div>
                    <div>
                      <h2 className="text-xl font-bold text-slate-900">{selectedAgent.name}</h2>
                      <div className="flex items-center gap-2 mt-1 text-xs text-slate-500 font-medium">
@@ -289,7 +283,7 @@ export function AgentRanking() {
                 </div>
                 
                 <div className="mt-6 flex justify-end">
-                  <button className={`px-6 py-2.5 rounded-full text-white text-sm font-bold shadow-md hover:shadow-lg transition-all ${selectedAgent.color}`}>
+                  <button className={`px-6 py-2.5 rounded-full text-white text-sm font-bold shadow-md hover:shadow-lg transition-all ${selectedAgent.color.split(' ')[0]}`}>
                     立即调用
                   </button>
                 </div>
