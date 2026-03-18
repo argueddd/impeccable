@@ -357,28 +357,10 @@ function App() {
         </div>
       </header>
 
-      {/* Instructions */}
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-        <div className="bg-white/80 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border border-slate-100 flex gap-6 text-xs font-medium text-slate-500 pointer-events-auto">
-          <span className="flex items-center gap-2">
-            <kbd className="bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded text-slate-600 font-mono">LMB</kbd>
-            Rotate
-          </span>
-          <span className="flex items-center gap-2">
-            <kbd className="bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded text-slate-600 font-mono">Scroll</kbd>
-            Zoom
-          </span>
-          <span className="flex items-center gap-2">
-            <kbd className="bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded text-slate-600 font-mono">Click</kbd>
-            Details
-          </span>
-        </div>
-      </div>
-
-      {/* Sidebar for Taxonomy */}
+      {/* Sidebar for Taxonomy (Now on the right) */}
       <Sidebar activeNode={activeNode} onNodeClick={handleNodeClick} />
       
-      {/* Agent Ranking Panel */}
+      {/* Agent Ranking Panel (Now on the left) */}
       <AgentRanking />
       
       {/* News Ticker */}
