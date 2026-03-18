@@ -11,20 +11,75 @@ html, body, #root {
   background-color: #f8fafc;
 }
 
-/* Add a subtle technical grid to the background */
-.bg-tech-grid {
-  background-image: 
-    linear-gradient(to right, rgba(148, 163, 184, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
-  background-position: center center;
+@layer utilities {
+  /* Add a subtle technical grid to the background */
+  .bg-tech-grid {
+    background-size: 50px 50px;
+    background-image: 
+      linear-gradient(to right, rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+    background-position: center center;
+  }
+  
+  /* A radial gradient overlay to focus the center */
+  .bg-vignette {
+    background: radial-gradient(circle at center, transparent 0%, rgba(248, 250, 252, 0.8) 100%);
+  }
+
+  /* Cyberpunk / EVA style specific utilities */
+  .clip-path-cyber {
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+  }
+  
+  .clip-path-cyber-tag {
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+  }
+
+  .bg-scanlines {
+    background-image: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0) 50%, 
+      rgba(0, 0, 0, 0.02) 50%,
+      rgba(0, 0, 0, 0.02)
+    );
+    background-size: 100% 4px;
+  }
+
+  .bg-dots {
+    background-image: radial-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+    background-size: 8px 8px;
+  }
 }
 
-/* A radial gradient overlay to focus the center */
-.bg-vignette {
-  background: radial-gradient(circle at center, transparent 0%, rgba(248, 250, 252, 0.8) 100%);
+/* Custom Scrollbar for a sleeker look */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
 }
 
-canvas {
-  touch-action: none;
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+}
+
+/* Glitch hover effect for cyber cards */
+@keyframes cyber-glitch {
+  0% { transform: translate(0) }
+  20% { transform: translate(-2px, 1px) }
+  40% { transform: translate(-1px, -1px) }
+  60% { transform: translate(2px, 1px) }
+  80% { transform: translate(1px, -1px) }
+  100% { transform: translate(0) }
+}
+
+.group:hover .cyber-glitch-text {
+  animation: cyber-glitch 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
 }

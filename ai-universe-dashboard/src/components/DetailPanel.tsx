@@ -346,44 +346,68 @@ function TopicNewsFeed({ color, node, onOpenComments }: { color: string, node: a
         </div>
       </div>
       
-      {/* Back to Vertical List Layout */}
+      {/* Cyberpunk Geometry Layout */}
       <div className="space-y-4 pb-12">
         {MOCK_NEWS.map((news, idx) => (
           <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: idx * 0.1, type: "spring", stiffness: 200, damping: 20 }}
             key={news.id}
-            className="group cursor-pointer"
+            className="group cursor-pointer relative"
           >
-            <div className="w-full p-5 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200 transition-all duration-300 relative overflow-hidden">
-              {/* Subtle Highlight strip on the edge */}
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-slate-100 group-hover:bg-opacity-100 transition-colors" style={{ backgroundColor: news.hot ? color : undefined }} />
+            {/* Cyber Card Background with scanlines and dots */}
+            <div className="w-full p-5 bg-white border border-slate-200 shadow-sm transition-all duration-300 relative overflow-hidden clip-path-cyber group-hover:border-slate-300 group-hover:bg-slate-50/50">
               
-              <div className="flex items-center gap-2 mb-2">
+              {/* Scanline & Dot Pattern Overlays */}
+              <div className="absolute inset-0 bg-scanlines opacity-50 pointer-events-none"></div>
+              <div className="absolute inset-0 bg-dots opacity-30 pointer-events-none"></div>
+              
+              {/* Thick Neon Accent Line */}
+              <div 
+                className="absolute left-0 top-0 bottom-0 w-1.5 transition-all duration-300 group-hover:w-2" 
+                style={{ 
+                  backgroundColor: news.hot ? color : '#cbd5e1',
+                  boxShadow: news.hot ? `0 0 10px ${color}80` : 'none'
+                }} 
+              />
+              
+              {/* Geometric Corner Accent */}
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-slate-200 group-hover:border-slate-400 transition-colors pointer-events-none"></div>
+              
+              <div className="flex items-center gap-3 mb-3 relative z-10">
                 {news.hot && (
-                  <span className="shrink-0 px-2 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-500 border border-red-100">
+                  <span 
+                    className="shrink-0 px-2 py-0.5 text-[10px] font-black bg-red-500 text-white tracking-widest clip-path-cyber-tag shadow-[0_0_8px_rgba(239,68,68,0.5)]"
+                  >
                     HOT
                   </span>
                 )}
-                <span className="text-xs font-bold text-slate-400">{news.time}</span>
-                <span className="text-xs text-slate-300">•</span>
-                <span className="text-xs font-medium text-slate-500">{news.source}</span>
+                <div className="flex items-center gap-2 font-mono">
+                  <span className="text-[10px] font-bold text-slate-400 tracking-widest">{news.time}</span>
+                  <span className="text-[10px] text-slate-300">//</span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{news.source}</span>
+                </div>
               </div>
               
-              <h3 className="font-bold text-[14px] text-slate-800 leading-snug mb-2 group-hover:text-blue-600 transition-colors">
-                {news.title}
+              <h3 className="font-bold text-[14px] text-slate-800 leading-snug mb-3 transition-colors relative z-10 pr-4">
+                <span className="group-hover:cyber-glitch-text inline-block transition-colors group-hover:text-blue-600">
+                  {news.title}
+                </span>
               </h3>
               
-              <p className="text-[13px] text-slate-500 leading-relaxed line-clamp-2">
+              <p className="text-[12px] text-slate-500 leading-relaxed line-clamp-2 relative z-10 font-medium">
                 {news.summary}
               </p>
 
               {/* Tags */}
-              <div className="flex flex-wrap gap-2 mt-3">
+              <div className="flex flex-wrap gap-2 mt-4 relative z-10">
                 {news.tags.map(tag => (
-                  <span key={tag} className="px-2 py-0.5 bg-slate-50 border border-slate-100 text-slate-400 text-[10px] font-medium rounded">
-                    #{tag}
+                  <span 
+                    key={tag} 
+                    className="px-2 py-0.5 bg-slate-100/80 border border-slate-200 text-slate-500 text-[10px] font-bold rounded-sm uppercase tracking-wider"
+                  >
+                    {tag}
                   </span>
                 ))}
               </div>
