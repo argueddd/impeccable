@@ -5,6 +5,9 @@ import { useMemo, useRef, useState, useEffect } from 'react';
 import { DATA_NODES, CATEGORIES } from './data';
 import { NodeLabel } from './components/NodeLabel';
 import { DetailPanel } from './components/DetailPanel';
+import { Sidebar } from './components/Sidebar';
+import { AgentRanking } from './components/AgentRanking';
+import { NewsTicker } from './components/NewsTicker';
 
 // --- 3D Scene Components ---
 
@@ -355,7 +358,7 @@ function App() {
       </header>
 
       {/* Instructions */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
         <div className="bg-white/80 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border border-slate-100 flex gap-6 text-xs font-medium text-slate-500 pointer-events-auto">
           <span className="flex items-center gap-2">
             <kbd className="bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded text-slate-600 font-mono">LMB</kbd>
@@ -371,6 +374,15 @@ function App() {
           </span>
         </div>
       </div>
+
+      {/* Sidebar for Taxonomy */}
+      <Sidebar activeNode={activeNode} onNodeClick={handleNodeClick} />
+      
+      {/* Agent Ranking Panel */}
+      <AgentRanking />
+      
+      {/* News Ticker */}
+      <NewsTicker />
 
       {/* 3D Canvas */}
       <div className="absolute inset-0 z-10">
