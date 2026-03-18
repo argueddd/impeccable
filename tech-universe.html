@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Data Universe - White Tech</title>
+    <!-- Three.js Core -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- TrackballControls for Interaction -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TrackballControls.js"></script>
+    <!-- Tween.js for smooth camera animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+    
+    <style>
+        /* ==========================================================================
+           Base & Overlay UI
+           ========================================================================== */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #f8fafc; /* Pure White/Light Gray background */
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: #1e293b;
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Overlay UI - HTML elements positioned over WebGL */
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none; /* Let clicks pass through to WebGL */
+        }
+
+        /* Header */
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 24px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 100%);
+            pointer-events: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: -0.5px;
+            color: #0f172a;
+        }
+        .logo-icon {
+            width: 32px; height: 32px;
+            background: #0ea5e9;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 900;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+        }
+
+        .instruction {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            padding: 12px 24px;
+            border-radius: 100px;
+            font-size: 13px;
+            color: #64748b;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            pointer-events: auto;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        .instruction span { display: flex; align-items: center; gap: 6px; }
+        .key { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 2px 8px; border-radius: 4px; font-family: monospace; font-size: 11px; color: #334155; }
+
+        /* ==========================================================================
+           HTML Tooltips (Attached to 3D Nodes)
+           ========================================================================== */
+        .node-label {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #334155;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            pointer-events: auto;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            transform: translate(-50%, -50%); /* Center on coordinate */
+            opacity: 0.8;
+            white-space: nowrap;
+        }
+        .node-label:hover {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.05);
+            border-color: #0ea5e9;
+            color: #0ea5e9;
+            z-index: 100;
+        }
+        .node-label.is-category { 
+            font-size: 15px; 
+            font-weight: 700; 
+            padding: 10px 20px; 
+            border-left-width: 4px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.98);
+        }
+        .node-label.is-tag { 
+            font-size: 12px; 
+            font-weight: 500; 
+            padding: 6px 12px;
+            border-left-width: 2px;
+            color: #64748b;
+        }
+
+        /* ==========================================================================
+           Detail Panel (Slides in when node is clicked)
+           ========================================================================== */
+        #detail-panel {
+            position: absolute;
+            right: -450px; /* Hidden initially */
+            top: 0;
+            width: 400px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(0,0,0,0.05);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.03);
+            transition: right 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        #detail-panel.active {
+            right: 0;
+        }
+
+        .detail-header {
+            padding: 32px 32px 24px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .close-btn {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            transition: all 0.2s ease;
+        }
+        .close-btn:hover { background: #e2e8f0; color: #0f172a; }
+        
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .tag.news { background: #e0f2fe; color: #0284c7; }
+        .tag.agent { background: #ede9fe; color: #6d28d9; }
+        
+        .detail-title {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.3;
+            color: #0f172a;
+            margin-bottom: 12px;
+        }
+        .detail-meta { font-size: 13px; color: #94a3b8; }
+
+        .detail-content {
+            padding: 32px;
+            flex: 1;
+            overflow-y: auto;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #475569;
+        }
+
+        /* Abstract data visualization in detail panel */
+        .data-bars { margin-top: 32px; }
+        .data-bar-row { margin-bottom: 16px; }
+        .data-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-bottom: 6px; }
+        .data-bar-track { width: 100%; height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden; }
+        .data-bar-fill { height: 100%; background: linear-gradient(90deg, #38bdf8, #0ea5e9); border-radius: 3px; transform-origin: left; transform: scaleX(0); transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        #detail-panel.active .data-bar-fill { transform: scaleX(1); }
+
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <div id="ui-layer">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">M</div>
+                <span>中国移动 <span style="font-weight:400; font-size:14px; color:#64748b; margin-left:8px;">| AI 数据宇宙 (White Tech)</span></span>
+            </div>
+            <div style="font-size: 14px; color: #64748b; font-weight: 500;">
+                <span style="display:inline-block; width:8px; height:8px; background:#10b981; border-radius:50%; margin-right:6px;"></span> 系统运行正常
+            </div>
+        </header>
+
+        <div class="instruction">
+            <span><span class="key">左键拖拽</span> 旋转宇宙</span>
+            <span><span class="key">滚轮</span> 穿梭缩放</span>
+            <span><span class="key">点击节点</span> 查看详情</span>
+        </div>
+
+        <!-- HTML Labels will be injected here by JS -->
+        <div id="labels-container"></div>
+    </div>
+
+    <!-- Detail Panel -->
+    <div id="detail-panel">
+        <div class="detail-header">
+            <button class="close-btn" id="close-panel">✕</button>
+            <span class="tag" id="panel-tag">News</span>
+            <h2 class="detail-title" id="panel-title">标题</h2>
+            <div class="detail-meta" id="panel-meta">2023.10.15 · AI前沿</div>
+        </div>
+        <div class="detail-content">
+            <p id="panel-desc">内容加载中...</p>
+            
+            <div class="data-bars" id="panel-stats" style="display:none;">
+                <h4 style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 16px;">智能体调用分析</h4>
+                <div class="data-bar-row">
+                    <div class="data-bar-label"><span>今日调用量</span> <span>12,450</span></div>
+                    <div class="data-bar-track"><div class="data-bar-fill" style="width: 85%;"></div></div>
+                </div>
+                <div class="data-bar-row">
+                    <div class="data-bar-label"><span>成功率</span> <span>99.8%</span></div>
+                    <div class="data-bar-track"><div class="data-bar-fill" style="width: 99.8%; background: linear-gradient(90deg, #34d399, #059669);"></div></div>
+                </div>
+                <div class="data-bar-row">
+                    <div class="data-bar-label"><span>平均响应耗时</span> <span>320ms</span></div>
+                    <div class="data-bar-track"><div class="data-bar-fill" style="width: 45%; background: linear-gradient(90deg, #fbbf24, #d97706);"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * OVERDRIVE: Data Universe Implementation
+         * Architecture:
+         * 1. Three.js Scene with Points/Lines forming a constellation network
+         * 2. HTML CSS2D-like overlay for crisp text labels attached to 3D coords
+         * 3. TWEEN.js for cinematic camera flights when clicking nodes
+         */
+
+        // --- Data Model: AI Taxonomy & Keywords ---
+        // Colors mapping for top-level categories
+        const colors = {
+            '模型演进': 0x0ea5e9,        // Blue
+            '智能体与自动化': 0x8b5cf6,   // Purple
+            '硬件终端与具身智能': 0xf59e0b, // Amber
+            '行业应用解决方案': 0x10b981,   // Emerald
+            'AI安全': 0xef4444,          // Red
+            '数据要素': 0x3b82f6,        // Light Blue
+            '自智网络': 0xf43f5e,        // Rose
+            '智算资源': 0x6366f1         // Indigo
+        };
+
+        const DATA_NODES = [
+            // 1. 模型演进 Cluster (Center)
+            { id: 'c1', type: '模型演进', title: '模型演进', isCategory: true, desc: 'AI 核心底层模型的迭代与突破', pos: [0, 0, 0] },
+            { id: 'c1-1', type: '模型演进', title: '自然语言处理', desc: 'NLP, 大语言模型相关资讯', meta: '标签', pos: [15, 10, 5], parent: 'c1' },
+            { id: 'c1-2', type: '模型演进', title: '计算机视觉', desc: 'CV, 图像生成, 视频生成', meta: '标签', pos: [-10, 15, -10], parent: 'c1' },
+            { id: 'c1-3', type: '模型演进', title: '强化学习', desc: 'RLHF, 奖励模型', meta: '标签', pos: [5, -15, 15], parent: 'c1' },
+            { id: 'c1-4', type: '模型演进', title: '推荐算法', desc: '个性化推荐', meta: '标签', pos: [-15, -5, -5], parent: 'c1' },
+            { id: 'c1-5', type: '模型演进', title: '大模型', desc: '千亿级参数基座模型', meta: '标签', pos: [20, -10, -15], parent: 'c1' },
+
+            // 2. 智能体与自动化 Cluster (Top Right)
+            { id: 'c2', type: '智能体与自动化', title: '智能体与自动化', isCategory: true, desc: 'Agent 框架与工作流', pos: [50, 40, -20] },
+            { id: 'c2-1', type: '智能体与自动化', title: 'MCP', desc: '模型上下文协议', meta: '标签', pos: [65, 45, -15], parent: 'c2' },
+            { id: 'c2-2', type: '智能体与自动化', title: 'A2A', desc: 'Agent to Agent 协同', meta: '标签', pos: [40, 55, -25], parent: 'c2' },
+            { id: 'c2-3', type: '智能体与自动化', title: 'Skill', desc: '智能体技能扩展', meta: '标签', pos: [55, 30, -35], parent: 'c2' },
+            { id: 'c2-4', type: '智能体与自动化', title: '开发框架', desc: 'LangChain, AutoGen 等', meta: '标签', pos: [35, 35, -5], parent: 'c2' },
+            { id: 'c2-5', type: '智能体与自动化', title: '知识库', desc: 'RAG 向量检索', meta: '标签', pos: [60, 50, -5], parent: 'c2' },
+
+            // 3. 硬件终端与具身智能 (Bottom Right)
+            { id: 'c3', type: '硬件终端与具身智能', title: '硬件终端与具身智能', isCategory: true, desc: 'AI 与物理世界的结合', pos: [60, -30, 20] },
+            { id: 'c3-1', type: '硬件终端与具身智能', title: '智能穿戴设备', desc: 'AI 眼镜, 戒指等', meta: '标签', pos: [75, -20, 25], parent: 'c3' },
+            { id: 'c3-2', type: '硬件终端与具身智能', title: '智能驾驶', desc: '自动驾驶系统', meta: '标签', pos: [50, -45, 30], parent: 'c3' },
+            { id: 'c3-3', type: '硬件终端与具身智能', title: '人形机器人', desc: '通用双足机器人', meta: '标签', pos: [65, -40, 5], parent: 'c3' },
+
+            // 4. 行业应用解决方案 (Top Left)
+            { id: 'c4', type: '行业应用解决方案', title: '行业应用解决方案', isCategory: true, desc: 'AI 在垂直领域的落地', pos: [-50, 30, 10] },
+            { id: 'c4-1', type: '行业应用解决方案', title: '智慧城市', desc: '城市级 AI 大脑', meta: '标签', pos: [-65, 40, 5], parent: 'c4' },
+            { id: 'c4-2', type: '行业应用解决方案', title: '智慧医疗', desc: 'AI 辅助诊疗', meta: '标签', pos: [-40, 45, 20], parent: 'c4' },
+            { id: 'c4-3', type: '行业应用解决方案', title: '智慧金融', desc: '智能风控与投顾', meta: '标签', pos: [-60, 20, 25], parent: 'c4' },
+            { id: 'c4-4', type: '行业应用解决方案', title: '数字政府', desc: '政务大模型', meta: '标签', pos: [-35, 25, -5], parent: 'c4' },
+
+            // 5. 智算资源 (Bottom Left)
+            { id: 'c5', type: '智算资源', title: '智算资源', isCategory: true, desc: '底层算力基础设施', pos: [-40, -40, -20] },
+            { id: 'c5-1', type: '智算资源', title: 'GPU', desc: '图形处理器算力', meta: '标签', pos: [-55, -30, -15], parent: 'c5' },
+            { id: 'c5-2', type: '智算资源', title: 'NPU', desc: '神经网络处理器', meta: '标签', pos: [-25, -50, -25], parent: 'c5' },
+            { id: 'c5-3', type: '智算资源', title: '算力集群', desc: '万卡智算中心', meta: '标签', pos: [-50, -55, -10], parent: 'c5' },
+            { id: 'c5-4', type: '智算资源', title: '边缘计算', desc: '端侧推理', meta: '标签', pos: [-30, -35, -35], parent: 'c5' },
+
+            // 6. 数据要素 (Far Back)
+            { id: 'c6', type: '数据要素', title: '数据要素', isCategory: true, desc: '数据治理与流通', pos: [0, -20, -60] },
+            { id: 'c6-1', type: '数据要素', title: '高质量数据集', desc: '大模型预训练语料', meta: '标签', pos: [15, -10, -70], parent: 'c6' },
+            { id: 'c6-2', type: '数据要素', title: '数据治理', desc: '数据清洗与标准化', meta: '标签', pos: [-15, -30, -65], parent: 'c6' },
+            { id: 'c6-3', type: '数据要素', title: '可信空间', desc: '隐私计算与流通', meta: '标签', pos: [5, -25, -45], parent: 'c6' },
+
+            // 7. AI安全 (Far Front Right)
+            { id: 'c7', type: 'AI安全', title: 'AI安全', isCategory: true, desc: '合规与风险防范', pos: [30, -10, 50] },
+            { id: 'c7-1', type: 'AI安全', title: '大模型幻觉', desc: '幻觉评测与抑制', meta: '标签', pos: [45, -5, 60], parent: 'c7' },
+            { id: 'c7-2', type: 'AI安全', title: '数据安全', desc: '隐私保护', meta: '标签', pos: [20, -25, 55], parent: 'c7' },
+
+            // 8. 自智网络 (Far Top)
+            { id: 'c8', type: '自智网络', title: '自智网络', isCategory: true, desc: '通信网络智能化', pos: [-10, 60, -10] },
+            { id: 'c8-1', type: '自智网络', title: '移动内部', desc: '内网智能运维', meta: '标签', pos: [5, 70, -5], parent: 'c8' }
+        ];
+
+        // --- Three.js Setup ---
+        const container = document.getElementById('canvas-container');
+        const labelsContainer = document.getElementById('labels-container');
+        
+        const scene = new THREE.Scene();
+        // White theme fog to blend edges
+        scene.fog = new THREE.FogExp2(0xf8fafc, 0.005);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+        camera.position.set(0, 0, 200);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xf8fafc, 1); // White background
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // Controls
+        const controls = new THREE.TrackballControls(camera, renderer.domElement);
+        controls.rotateSpeed = 2.0;
+        controls.zoomSpeed = 1.2;
+        controls.panSpeed = 0.8;
+        controls.dynamicDampingFactor = 0.15;
+
+        // --- Build the Constellation ---
+        
+        // 1. Decorative background particles (Dust)
+        const dustGeometry = new THREE.BufferGeometry();
+        const dustCount = 1000;
+        const dustPositions = new Float32Array(dustCount * 3);
+        for(let i=0; i<dustCount*3; i++) {
+            dustPositions[i] = (Math.random() - 0.5) * 400;
+        }
+        dustGeometry.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
+        const dustMaterial = new THREE.PointsMaterial({
+            color: 0x94a3b8, // Light gray
+            size: 1.5,
+            transparent: true,
+            opacity: 0.3
+        });
+        const dustParticles = new THREE.Points(dustGeometry, dustMaterial);
+        scene.add(dustParticles);
+
+        // 2. Data Nodes & Connections
+        const nodeGroup = new THREE.Group();
+        scene.add(nodeGroup);
+
+        const nodeMeshes = [];
+        const htmlLabels = [];
+
+        // Colors based on type
+        const colors = {
+            news: 0x0ea5e9,  // Blue
+            agent: 0x8b5cf6, // Purple
+            trend: 0x10b981  // Emerald
+        };
+
+        DATA_NODES.forEach(data => {
+            // Determine color based on top-level category type
+            const nodeColor = colors[data.type] || 0x94a3b8; // Default to gray if not found
+
+            // Create 3D Sphere for the node (larger for categories, smaller for tags)
+            const size = data.isCategory ? 3.5 : 1.5;
+            const geometry = new THREE.SphereGeometry(size, 32, 32);
+            const material = new THREE.MeshBasicMaterial({ 
+                color: nodeColor,
+                transparent: true,
+                opacity: data.isCategory ? 0.9 : 0.6
+            });
+            const sphere = new THREE.Mesh(geometry, material);
+            sphere.position.set(data.pos[0], data.pos[1], data.pos[2]);
+            
+            // Add a glowing halo ring (only for top-level categories)
+            if (data.isCategory) {
+                const ringGeo = new THREE.RingGeometry(4.5, 5.5, 32);
+                const ringMat = new THREE.MeshBasicMaterial({ 
+                    color: nodeColor, 
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                sphere.add(ring); // Attach ring to sphere
+            }
+
+            // Store user data for interaction
+            sphere.userData = data;
+            nodeGroup.add(sphere);
+            nodeMeshes.push(sphere);
+
+            // Create HTML Label
+            const label = document.createElement('div');
+            // Style differently for Category vs Tag
+            label.className = `node-label ${data.isCategory ? 'is-category' : 'is-tag'}`;
+            label.textContent = data.title;
+            // Set dynamic border color based on its category
+            label.style.borderLeftColor = `#${nodeColor.toString(16).padStart(6, '0')}`;
+            
+            label.addEventListener('click', () => onNodeClick(data, sphere));
+            labelsContainer.appendChild(label);
+            
+            htmlLabels.push({
+                element: label,
+                pos: sphere.position,
+                isCategory: data.isCategory
+            });
+        });
+
+        // 3. Draw lines connecting nearby nodes (Connect tags to their parent category)
+        const lineMaterial = new THREE.LineBasicMaterial({
+            color: 0xcbd5e1, // Very light gray line
+            transparent: true,
+            opacity: 0.5
+        });
+        
+        DATA_NODES.forEach(node => {
+            if (node.parent) {
+                const parentNode = DATA_NODES.find(n => n.id === node.parent);
+                if (parentNode) {
+                    const p1 = new THREE.Vector3(...node.pos);
+                    const p2 = new THREE.Vector3(...parentNode.pos);
+                    const lineGeo = new THREE.BufferGeometry().setFromPoints([p1, p2]);
+                    const line = new THREE.Line(lineGeo, lineMaterial);
+                    nodeGroup.add(line);
+                }
+            }
+        });
+
+        // --- Interaction Logic ---
+        
+        const panel = document.getElementById('detail-panel');
+        const closeBtn = document.getElementById('close-panel');
+        
+        closeBtn.addEventListener('click', () => {
+            panel.classList.remove('active');
+            // Optional: reset camera to overview
+            new TWEEN.Tween(camera.position)
+                .to({ x: 0, y: 0, z: 200 }, 1500)
+                .easing(TWEEN.Easing.Cubic.Out)
+                .start();
+        });
+
+        function onNodeClick(data, mesh) {
+            // 1. Update UI Panel
+            document.getElementById('panel-title').textContent = data.title;
+            document.getElementById('panel-desc').innerHTML = data.desc;
+            document.getElementById('panel-meta').textContent = data.meta;
+            
+            const tag = document.getElementById('panel-tag');
+            tag.textContent = data.type;
+            tag.style.backgroundColor = `#${(colors[data.type] || 0x94a3b8).toString(16).padStart(6, '0')}22`; // 22 is hex for low opacity
+            tag.style.color = `#${(colors[data.type] || 0x94a3b8).toString(16).padStart(6, '0')}`;
+
+            // Optional: Show some mock stats if it's a specific category, else hide
+            document.getElementById('panel-stats').style.display = data.isCategory ? 'block' : 'none';
+            
+            // Slide in panel
+            panel.classList.add('active');
+
+            // 2. Cinematic Camera Fly-To using TWEEN
+            // Calculate a position slightly in front and to the left of the node
+            // (to account for the panel taking up the right side of the screen)
+            const targetPos = new THREE.Vector3(
+                mesh.position.x - 20, 
+                mesh.position.y, 
+                mesh.position.z + 40
+            );
+
+            // Animate Camera Position
+            new TWEEN.Tween(camera.position)
+                .to({ x: targetPos.x, y: targetPos.y, z: targetPos.z }, 1200)
+                .easing(TWEEN.Easing.Cubic.Out)
+                .start();
+
+            // Animate Controls Target (where the camera looks)
+            new TWEEN.Tween(controls.target)
+                .to({ x: mesh.position.x, y: mesh.position.y, z: mesh.position.z }, 1200)
+                .easing(TWEEN.Easing.Cubic.Out)
+                .start();
+        }
+
+        // --- Animation Loop ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
+
+            TWEEN.update();
+            controls.update();
+
+            // Slow rotation of the whole constellation
+            nodeGroup.rotation.y = time * 0.05;
+            dustParticles.rotation.y = time * 0.02;
+            dustParticles.rotation.x = time * 0.01;
+
+            // Make rings face the camera
+            nodeMeshes.forEach(mesh => {
+                const ring = mesh.children[0];
+                if (ring) {
+                    ring.quaternion.copy(camera.quaternion);
+                    // Pulsing effect
+                    ring.scale.setScalar(1 + Math.sin(time * 3) * 0.1);
+                }
+            });
+
+            renderer.render(scene, camera);
+
+            // Sync HTML Labels with 3D positions
+            const widthHalf = window.innerWidth / 2;
+            const heightHalf = window.innerHeight / 2;
+
+            htmlLabels.forEach(item => {
+                // Get world position accounting for group rotation
+                const worldPos = item.pos.clone().applyMatrix4(nodeGroup.matrixWorld);
+                
+                // Project to 2D screen space
+                worldPos.project(camera);
+                
+                // Check if behind camera
+                if (worldPos.z > 1) {
+                    item.element.style.display = 'none';
+                    return;
+                }
+                
+                item.element.style.display = 'block';
+                
+                // Calculate CSS coordinates
+                const x = (worldPos.x * widthHalf) + widthHalf;
+                const y = -(worldPos.y * heightHalf) + heightHalf;
+                
+                item.element.style.left = `${x}px`;
+                item.element.style.top = `${y}px`;
+
+                // Fade out elements that are far away
+                const distance = camera.position.distanceTo(new THREE.Vector3(item.pos.x, item.pos.y, item.pos.z));
+                
+                // Categories are visible from further away than tags
+                const maxDistance = item.isCategory ? 200 : 120;
+                
+                if(distance > maxDistance) {
+                    item.element.style.opacity = Math.max(0, 1 - (distance - maxDistance)/50);
+                    item.element.style.pointerEvents = item.element.style.opacity < 0.2 ? 'none' : 'auto';
+                } else {
+                    item.element.style.opacity = item.isCategory ? 0.9 : 0.7;
+                    item.element.style.pointerEvents = 'auto';
+                }
+            });
+        }
+
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            controls.handleResize();
+        });
+
+        // Start
+        animate();
+    </script>
+</body>
+</html>

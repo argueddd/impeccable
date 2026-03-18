@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI智能体数据看板 - 科技版</title>
+    <!-- ECharts for the bar chart -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <style>
+        /* ==========================================================================
+           Design Tokens & Variables (科技感主题)
+           ========================================================================== */
+        :root {
+            /* Colors */
+            --bg-base: #030712;
+            --bg-panel: rgba(15, 23, 42, 0.6);
+            --bg-panel-hover: rgba(30, 41, 59, 0.8);
+            
+            --accent-primary: #0ea5e9; /* Light blue */
+            --accent-glow: #38bdf8;
+            --accent-secondary: #8b5cf6; /* Purple */
+            --accent-success: #10b981;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+            
+            --border-color: rgba(14, 165, 233, 0.2);
+            --border-glow: rgba(14, 165, 233, 0.5);
+            
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dark: #cbd5e1;
+
+            /* Typography */
+            --font-base: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            --font-tech: 'Orbitron', 'SF Mono', Consolas, monospace;
+            
+            /* Animation */
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ==========================================================================
+           Base Styles & Resets
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-base);
+            /* Tech Grid Background */
+            background-image: 
+                linear-gradient(rgba(14, 165, 233, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(14, 165, 233, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+
+        /* ==========================================================================
+           Layout
+           ========================================================================== */
+        .header {
+            height: 64px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 32px;
+            background: linear-gradient(180deg, rgba(3,7,18,0.9) 0%, rgba(3,7,18,0) 100%);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .dashboard-container {
+            display: grid;
+            /* 采用非对称的 BENTOO (便当盒) 风格网格布局，打破死板的三列 */
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: minmax(120px, auto);
+            gap: 20px;
+            padding: 24px 32px;
+            flex: 1;
+            max-width: 1920px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* 网格区域分配 */
+        .widget-news { grid-column: span 8; grid-row: span 3; } /* 核心视界：主推新闻（占主导） */
+        .widget-chart { grid-column: span 4; grid-row: span 2; } /* 右上：关键数据统计 */
+        .widget-wordcloud { grid-column: span 4; grid-row: span 2; } /* 右下：词云趋势 */
+        .widget-ranking { grid-column: span 4; grid-row: span 4; } /* 左下：排行榜（纵向长条） */
+        .widget-dynamics { grid-column: span 8; grid-row: span 2; } /* 中下：横向动态 */
+
+        /* ==========================================================================
+           Components
+           ========================================================================== */
+        
+        /* Tech Panel */
+        .panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            transition: var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            /* Entry Animation Base */
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUpIn 0.6s var(--transition-smooth) forwards;
+        }
+
+        /* Decorative Corners for panels */
+        .panel::before, .panel::after {
+            content: '';
+            position: absolute;
+            width: 10px; height: 10px;
+            border: 2px solid transparent;
+            transition: var(--transition-smooth);
+        }
+        .panel::before { top: -1px; left: -1px; border-top-color: var(--accent-primary); border-left-color: var(--accent-primary); border-top-left-radius: 12px; }
+        .panel::after { bottom: -1px; right: -1px; border-bottom-color: var(--accent-primary); border-right-color: var(--accent-primary); border-bottom-right-radius: 12px; }
+
+        .panel:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.1);
+            transform: translateY(-2px);
+        }
+        .panel:hover::before, .panel:hover::after {
+            width: 20px; height: 20px;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Panel Header */
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+            letter-spacing: 0.5px;
+        }
+        .panel-title i {
+            color: var(--accent-primary);
+            font-size: 18px;
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Header Elements */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: bold;
+            font-size: 20px;
+            color: var(--text-main);
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+        .logo-icon {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+        }
+
+        .header-actions { display: flex; gap: 16px; align-items: center; }
+        .icon-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted);
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        .icon-btn:hover {
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 10px rgba(14, 165, 233, 0.3);
+            transform: rotate(15deg);
+        }
+
+        /* ==========================================================================
+           Specific Widgets
+           ========================================================================== */
+
+        /* 1. Agent Ranking */
+        .tabs { display: flex; gap: 4px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px; margin-bottom: 16px; }
+        .tab { 
+            padding: 6px 12px; font-size: 12px; border-radius: 6px; cursor: pointer;
+            color: var(--text-muted); transition: var(--transition-fast); flex: 1; text-align: center;
+        }
+        .tab.active { background: rgba(14, 165, 233, 0.2); color: var(--accent-primary); border: 1px solid rgba(14, 165, 233, 0.3); }
+        .tab:hover:not(.active) { color: var(--text-main); }
+
+        .ranking-list { display: flex; flex-direction: column; gap: 12px; flex: 1; overflow-y: auto; }
+        .ranking-item {
+            display: flex; gap: 12px; padding: 12px;
+            background: rgba(255,255,255,0.02); border-radius: 8px;
+            border-left: 3px solid transparent;
+            transition: var(--transition-fast);
+            cursor: pointer;
+        }
+        .ranking-item:hover {
+            background: rgba(14, 165, 233, 0.05);
+            border-left-color: var(--accent-primary);
+            transform: translateX(4px);
+        }
+        .rank-medal {
+            width: 28px; height: 28px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 14px;
+            background: rgba(255,255,255,0.1); color: var(--text-muted);
+        }
+        .ranking-item:nth-child(1) .rank-medal { background: rgba(239, 68, 68, 0.2); color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+        .ranking-item:nth-child(2) .rank-medal { background: rgba(245, 158, 11, 0.2); color: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
+        .ranking-item:nth-child(3) .rank-medal { background: rgba(16, 185, 129, 0.2); color: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
+        
+        .agent-info h4 { font-size: 14px; margin-bottom: 4px; color: var(--text-main); }
+        .agent-meta { font-size: 11px; color: var(--text-muted); display: flex; flex-direction: column; gap: 2px; }
+
+        /* 2. News Forecast (Left Bottom) */
+        .forecast-list { display: flex; flex-direction: column; gap: 12px; }
+        .forecast-item {
+            display: flex; gap: 12px; align-items: center;
+            padding: 8px; border-radius: 8px; transition: var(--transition-fast);
+            cursor: pointer;
+        }
+        .forecast-item:hover { background: rgba(255,255,255,0.05); }
+        .forecast-thumb {
+            width: 60px; height: 60px; border-radius: 6px;
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; color: var(--accent-primary); text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .forecast-thumb::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg); animation: scan 3s linear infinite;
+        }
+        .forecast-content h4 { font-size: 13px; margin-bottom: 4px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .forecast-content p { font-size: 11px; color: var(--text-muted); }
+
+        /* 3. Main AI News Area */
+        .filter-bar {
+            display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+            padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .search-box {
+            display: flex; align-items: center; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 0 12px; flex: 1; min-width: 200px;
+            transition: var(--transition-fast);
+        }
+        .search-box:focus-within { border-color: var(--accent-primary); box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2); }
+        .search-box input { background: transparent; border: none; color: white; padding: 8px; width: 100%; outline: none; font-size: 13px; }
+        .filter-select {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-main);
+            padding: 8px 12px; border-radius: 6px; font-size: 13px; outline: none; cursor: pointer;
+        }
+        .filter-select:focus { border-color: var(--accent-primary); }
+        .filter-select option { background: var(--bg-base); }
+
+        .news-article {
+            padding: 20px; border-radius: 8px; background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05); margin-bottom: 16px;
+            transition: var(--transition-smooth); position: relative; overflow: hidden;
+        }
+        .news-article::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+            background: var(--accent-primary); transform: scaleY(0); transition: transform 0.3s ease; transform-origin: top;
+        }
+        .news-article:hover { background: rgba(14, 165, 233, 0.03); border-color: rgba(14, 165, 233, 0.2); transform: translateY(-2px); }
+        .news-article:hover::before { transform: scaleY(1); }
+        
+        .news-title { font-size: 18px; color: var(--accent-glow); margin-bottom: 12px; cursor: pointer; display: inline-block; }
+        .news-title:hover { text-decoration: underline; }
+        .ai-summary-tag { 
+            display: inline-flex; align-items: center; gap: 6px; font-size: 11px;
+            background: rgba(139, 92, 246, 0.15); color: #c4b5fd; padding: 4px 8px; border-radius: 4px; margin-bottom: 8px; border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        .news-desc { font-size: 14px; color: var(--text-dark); line-height: 1.6; margin-bottom: 16px; }
+        .news-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-muted); border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px; }
+        .news-meta { display: flex; gap: 16px; }
+        .news-actions { display: flex; gap: 12px; }
+        .action-link { color: var(--accent-primary); text-decoration: none; display: flex; align-items: center; gap: 4px; font-weight: 500; transition: var(--transition-fast); }
+        .action-link:hover { color: #fff; text-shadow: 0 0 8px var(--accent-glow); }
+
+        /* 4. Word Cloud Area */
+        .word-cloud-container {
+            position: relative;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .word {
+            position: absolute;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            white-space: nowrap;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+            animation: float 6s ease-in-out infinite alternate;
+        }
+        .word:hover { transform: scale(1.2) !important; z-index: 10; text-shadow: 0 0 15px currentColor; }
+
+        /* 5. Chart Area */
+        .chart-container {
+            height: 260px;
+            width: 100%;
+        }
+
+        /* ==========================================================================
+           Animations
+           ========================================================================== */
+        @keyframes fadeUpIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scan {
+            0% { transform: translateY(-100%) rotate(45deg); }
+            100% { transform: translateY(100%) rotate(45deg); }
+        }
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(5px, -5px); }
+        }
+
+        /* Staggered delays for panels based on bentoo grid */
+        .widget-news { animation-delay: 0.1s; }
+        .widget-chart { animation-delay: 0.2s; }
+        .widget-wordcloud { animation-delay: 0.3s; }
+        .widget-ranking { animation-delay: 0.4s; }
+        .widget-dynamics { animation-delay: 0.5s; }
+
+        /* Icons placeholder (using text/unicode for zero-dependency) */
+        .icon { font-style: normal; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon"><span style="color:#fff;font-weight:900;">M</span></div>
+            <span>中国移动 <span style="font-weight:400; font-size:14px; color:var(--text-muted); margin-left:8px;">| AI智能体数据看板</span></span>
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn" title="设置"><i class="icon">⚙️</i></button>
+            <button class="icon-btn" title="用户"><i class="icon">👤</i></button>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        
+        <!-- ================= CORE AREA: AI NEWS (SPAN 8) ================= -->
+        <div class="panel widget-news">
+            <div class="panel-header">
+                <div class="panel-title"><i class="icon">🌍</i> AI 资讯前沿</div>
+            </div>
+            
+            <div class="filter-bar">
+                <div class="search-box">
+                    <i class="icon" style="color:var(--text-muted); font-size:14px;">🔍</i>
+                    <input type="text" placeholder="输入关键词搜索...">
+                </div>
+                <select class="filter-select"><option>Rss源：全部</option><option>内部源</option><option>外部源</option></select>
+                <select class="filter-select"><option>一级目录：全部</option><option>大模型</option><option>计算机视觉</option></select>
+                <select class="filter-select"><option>最近一周</option><option>最近一月</option></select>
+            </div>
+
+            <!-- News Grid Layout within the panel -->
+            <div class="news-list" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                <!-- Article 1 (Featured, spans 2 cols) -->
+                <div class="news-article" style="grid-column: span 2;">
+                    <h3 class="news-title" style="font-size: 22px;">全球首款医疗大模型 Baichuan-M3 亮相：超越 GPT-4，实力不容小觑！</h3>
+                    <div class="ai-summary-tag"><i class="icon">✨</i> AI生成摘要</div>
+                    <p class="news-desc" style="font-size: 15px;">近日，国产医疗大模型 Baichuan-M3 正式发布，成为全球最强的医疗 AI 系统。这款模型由百川智能推出，经过深度优化，专注于医疗场景的应用，融合了大量医学文献、临床指南、真实病例以及药品知识库，展现了惊人的智能医疗能力。</p>
+                    <div class="news-footer">
+                        <div class="news-meta">
+                            <span>来源: 公司新闻</span>
+                            <span>发布时间: 2023.10.15 15:43</span>
+                            <span>标签: 模型演进 / 自然语言处理</span>
+                        </div>
+                        <div class="news-actions">
+                            <a href="#" class="action-link"><i class="icon">⚡</i> 快筛PDF</a>
+                            <a href="#" class="action-link"><i class="icon">🔗</i> 原文链接</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Article 2 -->
+                <div class="news-article">
+                    <h3 class="news-title">爱诗科技发布通用实时世界模型 PixVerse R1</h3>
+                    <p class="news-desc" style="font-size: 13px; margin-bottom: 8px;">该模型通过三大核心技术的环环相扣，实现"让虚拟世界活起来"的实时交互体验...</p>
+                    <div class="news-footer" style="padding-top: 8px; margin-top: auto;">
+                        <div class="news-meta"><span>发布时间: 2023.10.14</span></div>
+                        <div class="news-actions"><a href="#" class="action-link">查看详情</a></div>
+                    </div>
+                </div>
+
+                <!-- Article 3 -->
+                <div class="news-article">
+                    <h3 class="news-title">郭明錤：苹果AI芯片量产在即，启用新数据中心</h3>
+                    <p class="news-desc" style="font-size: 13px; margin-bottom: 8px;">苹果公司在2024年下半年正式量产自主研发的服务器AI芯片，并计划于2025年启动配备这些芯片的新数据中心...</p>
+                    <div class="news-footer" style="padding-top: 8px; margin-top: auto;">
+                        <div class="news-meta"><span>发布时间: 2023.10.13</span></div>
+                        <div class="news-actions"><a href="#" class="action-link">查看详情</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TOP RIGHT: CHART (SPAN 4) ================= -->
+        <div class="panel widget-chart">
+            <div class="panel-header">
+                <div class="panel-title"><i class="icon">�</i> 智能体调用概览</div>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:0;">各部门实时调用量与分布监控情况</p>
+            <div class="chart-container" id="barChart" style="height: 220px;"></div>
+        </div>
+
+        <!-- ================= MIDDLE RIGHT: WORD CLOUD (SPAN 4) ================= -->
+        <div class="panel widget-wordcloud">
+            <div class="panel-header">
+                <div class="panel-title"><i class="icon">☁️</i> 行业趋势感知网络</div>
+            </div>
+            <div class="word-cloud-container" id="wordCloud" style="height: 100%; min-height: 200px;">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+
+        <!-- ================= BOTTOM LEFT: RANKING (SPAN 4, TALL) ================= -->
+        <div class="panel widget-ranking">
+            <div class="panel-header">
+                <div class="panel-title"><i class="icon">🤖</i> 核心智能体矩阵排行榜</div>
+            </div>
+            <div class="tabs">
+                <div class="tab active">实时热度</div>
+                <div class="tab">官方标杆</div>
+            </div>
+            <div class="ranking-list" style="max-height: 380px;">
+                <div class="ranking-item">
+                    <div class="rank-medal">1</div>
+                    <div class="agent-info">
+                        <h4>合同智能体</h4>
+                        <div class="agent-meta">
+                            <span>创建人：张三 | 组织：AI创新部</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ranking-item">
+                    <div class="rank-medal">2</div>
+                    <div class="agent-info">
+                        <h4>营销文案助手</h4>
+                        <div class="agent-meta">
+                            <span>创建人：李四 | 组织：市场经营部</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ranking-item">
+                    <div class="rank-medal">3</div>
+                    <div class="agent-info">
+                        <h4>代码审查智能体</h4>
+                        <div class="agent-meta">
+                            <span>创建人：王五 | 组织：工程建设部</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ranking-item">
+                    <div class="rank-medal" style="background:rgba(255,255,255,0.05);">4</div>
+                    <div class="agent-info">
+                        <h4>网络故障诊断</h4>
+                        <div class="agent-meta">
+                            <span>创建人：赵六 | 组织：网络部</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ranking-item">
+                    <div class="rank-medal" style="background:rgba(255,255,255,0.05);">5</div>
+                    <div class="agent-info">
+                        <h4>数据报表生成</h4>
+                        <div class="agent-meta">
+                            <span>创建人：孙七 | 组织：数智化部</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= BOTTOM RIGHT: DYNAMICS (SPAN 8, WIDE) ================= -->
+        <div class="panel widget-dynamics">
+            <div class="panel-header">
+                <div class="panel-title"><i class="icon">⚡</i> 系统生态动态先知</div>
+            </div>
+            <!-- Horizontal layout for dynamics instead of vertical -->
+            <div class="forecast-list" style="flex-direction: row; gap: 20px; height: 100%;">
+                <div class="forecast-item" style="flex: 1; flex-direction: column; align-items: flex-start; background: rgba(0,0,0,0.2); padding: 16px; border: 1px solid rgba(255,255,255,0.03);">
+                    <div class="forecast-thumb" style="width: 100%; height: 80px; margin-bottom: 12px; font-size: 14px;">落地案例</div>
+                    <div class="forecast-content">
+                        <h4 style="font-size: 14px;">陕西移动联合发布最新AI客服大模型落地案例</h4>
+                        <p style="margin-top: 8px;">2023.10.12 · AI前沿</p>
+                    </div>
+                </div>
+                <div class="forecast-item" style="flex: 1; flex-direction: column; align-items: flex-start; background: rgba(0,0,0,0.2); padding: 16px; border: 1px solid rgba(255,255,255,0.03);">
+                    <div class="forecast-thumb" style="width: 100%; height: 80px; margin-bottom: 12px; font-size: 14px; border-color:var(--accent-secondary); color:var(--accent-secondary);">平台迭代</div>
+                    <div class="forecast-content">
+                        <h4 style="font-size: 14px;">内部智能体平台V2.0正式上线，新增多模态支持</h4>
+                        <p style="margin-top: 8px;">2023.10.10 · 平台公告</p>
+                    </div>
+                </div>
+                <div class="forecast-item" style="flex: 1; flex-direction: column; align-items: flex-start; background: rgba(0,0,0,0.2); padding: 16px; border: 1px solid rgba(255,255,255,0.03);">
+                    <div class="forecast-thumb" style="width: 100%; height: 80px; margin-bottom: 12px; font-size: 14px; border-color:var(--accent-warning); color:var(--accent-warning);">赛事追踪</div>
+                    <div class="forecast-content">
+                        <h4 style="font-size: 14px;">首届"AI创新杯"智能体开发大赛正式启动报名</h4>
+                        <p style="margin-top: 8px;">2023.10.08 · 赛事活动</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- 1. Interactive Word Cloud Simulation ---
+        const words = [
+            { text: "大模型", size: 36, color: "var(--accent-glow)", top: "40%", left: "30%" },
+            { text: "自然语言处理", size: 18, color: "var(--accent-primary)", top: "20%", left: "15%" },
+            { text: "多模态模型", size: 24, color: "var(--accent-secondary)", top: "60%", left: "10%" },
+            { text: "计算机视觉", size: 20, color: "var(--text-main)", top: "30%", left: "60%" },
+            { text: "推荐算法", size: 22, color: "var(--accent-success)", top: "70%", left: "40%" },
+            { text: "强化学习", size: 16, color: "var(--accent-warning)", top: "15%", left: "50%" },
+            { text: "智能穿戴设备", size: 14, color: "var(--text-muted)", top: "80%", left: "65%" },
+            { text: "人形机器人", size: 16, color: "var(--accent-danger)", top: "50%", left: "75%" },
+            { text: "智慧医疗", size: 18, color: "var(--accent-primary)", top: "85%", left: "20%" },
+            { text: "智慧城市", size: 15, color: "var(--accent-secondary)", top: "25%", left: "80%" }
+        ];
+
+        const cloudContainer = document.getElementById('wordCloud');
+        words.forEach((w, index) => {
+            const el = document.createElement('div');
+            el.className = 'word';
+            el.textContent = w.text;
+            el.style.fontSize = `${w.size}px`;
+            el.style.color = w.color;
+            el.style.top = w.top;
+            el.style.left = w.left;
+            // Randomize animation delay to make them float independently
+            el.style.animationDelay = `-${Math.random() * 5}s`;
+            cloudContainer.appendChild(el);
+        });
+
+        // --- 2. ECharts Initialization for Tech Chart ---
+        document.addEventListener("DOMContentLoaded", () => {
+            const chartDom = document.getElementById('barChart');
+            const myChart = echarts.init(chartDom, 'dark', { background: 'transparent' });
+            
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' },
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    borderColor: '#0ea5e9',
+                    textStyle: { color: '#f8fafc' }
+                },
+                legend: {
+                    data: ['智能体总数', '智能体调用总量'],
+                    bottom: 0,
+                    textStyle: { color: '#94a3b8' },
+                    itemStyle: { borderWidth: 0 }
+                },
+                grid: {
+                    top: '10%',
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['市场部', '政企部', '网管部', '网络部', '工程部', '数智部', '内审部'],
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+                    axisLabel: { color: '#94a3b8', interval: 0, rotate: 30, fontSize: 10 }
+                },
+                yAxis: {
+                    type: 'value',
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)', type: 'dashed' } },
+                    axisLabel: { color: '#94a3b8' }
+                },
+                series: [
+                    {
+                        name: '智能体总数',
+                        type: 'bar',
+                        barWidth: '15%',
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#38bdf8' }, // Glow top
+                                { offset: 1, color: '#0284c7' }  // Dark bottom
+                            ]),
+                            borderRadius: [4, 4, 0, 0]
+                        },
+                        data: [7, 6, 9, 14, 18, 21, 25]
+                    },
+                    {
+                        name: '智能体调用总量',
+                        type: 'bar',
+                        barWidth: '15%',
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#34d399' },
+                                { offset: 1, color: '#059669' }
+                            ]),
+                            borderRadius: [4, 4, 0, 0]
+                        },
+                        data: [4, 3, 5, 8, 12, 15, 17]
+                    }
+                ]
+            };
+            
+            myChart.setOption(option);
+
+            // Responsive chart
+            window.addEventListener('resize', () => {
+                myChart.resize();
+            });
+        });
+
+        // --- 3. Simple Tab Interaction ---
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                // Could add logic to filter ranking list here
+            });
+        });
+    </script>
+</body>
+</html>
