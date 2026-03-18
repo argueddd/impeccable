@@ -344,8 +344,10 @@ function App() {
             M
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900">China Mobile AI Universe</h1>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-widest">Knowledge Graph v2.0</p>
+            <h1 className="text-xl font-bold tracking-tight text-slate-900">
+              陕西移动数智化部 <span className="text-slate-400 font-normal">| AI Universe</span>
+            </h1>
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-widest">全网 AI 技术演进与舆情监测枢纽</p>
           </div>
         </div>
         
