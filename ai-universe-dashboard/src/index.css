@@ -58,8 +58,13 @@ html, body, #root {
 }
 
 .animate-ticker {
-  animation: ticker 40s linear infinite;
-  width: max-content;
+    animation: ticker 40s linear infinite;
+    width: max-content;
+  }
+
+  .writing-vertical-rl {
+    writing-mode: vertical-rl;
+  }
 }
 
 /* Custom Scrollbar for a sleeker look */
