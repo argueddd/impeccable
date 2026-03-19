@@ -65,7 +65,6 @@ html, body, #root {
   .writing-vertical-rl {
     writing-mode: vertical-rl;
   }
-}
 
 /* Custom Scrollbar for a sleeker look */
 .custom-scrollbar::-webkit-scrollbar {
