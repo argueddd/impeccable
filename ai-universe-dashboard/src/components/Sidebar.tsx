@@ -21,50 +21,52 @@ export function Sidebar({ activeNode, onNodeClick }: SidebarProps) {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: '100%', opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed right-8 top-32 bottom-20 w-80 bg-white/85 backdrop-blur-2xl border border-slate-200 shadow-[0_8px_30px_rgba(0,0,0,0.08)] rounded-2xl flex flex-col z-30 pointer-events-auto overflow-hidden"
+            className="fixed right-6 top-32 bottom-20 w-64 bg-white/60 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.05)] rounded-2xl flex flex-col z-30 pointer-events-auto overflow-hidden"
           >
-            <div className="p-5 border-b border-slate-100 bg-slate-50/80 flex items-center justify-between">
+            {/* Tech Edge Highlight */}
+            <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-400/50 via-indigo-500/50 to-transparent" />
+
+            <div className="p-4 border-b border-slate-100/50 flex items-center justify-between shrink-0">
               <div>
-                <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2 tracking-wide">
-                  <Network size={16} className="text-indigo-500" />
-                  全网热力知识图谱
+                <h3 className="font-bold text-slate-800 text-xs flex items-center gap-2 tracking-wide">
+                  <Network size={14} className="text-indigo-500" />
+                  知识图谱
                 </h3>
-                <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-mono">Taxonomy Hierarchy</p>
               </div>
               <button 
                 onClick={() => setIsExpanded(false)}
-                className="p-1.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition-colors"
+                className="p-1 rounded-full hover:bg-white/50 text-slate-400 hover:text-slate-700 transition-colors"
               >
-                <ChevronRight size={18} />
+                <ChevronRight size={16} />
               </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8 bg-slate-50/30">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
               {categories.map(cat => {
                 const children = DATA_NODES.filter(n => n.parent === cat.id);
                 const catColor = CATEGORIES[cat.type]?.color || '#94a3b8';
                 const isCatActive = activeNode?.id === cat.id || activeNode?.parent === cat.id;
                 
                 return (
-                  <div key={cat.id} className="space-y-3">
+                  <div key={cat.id} className="space-y-2">
                     {/* Category Header */}
                     <div 
                       onClick={() => onNodeClick(cat)}
                       className={`font-bold cursor-pointer transition-all flex items-center gap-2 group`}
                       style={{
-                        fontSize: `${Math.min(14 + (cat.heat || 0)/15000, 18)}px`,
-                        color: isCatActive ? '#0f172a' : '#334155'
+                        fontSize: '13px',
+                        color: isCatActive ? '#0f172a' : '#475569'
                       }}
                     >
                       <div 
-                        className={`w-2 h-2 rounded-sm transition-transform ${isCatActive ? 'scale-125' : 'group-hover:scale-125'}`} 
-                        style={{ backgroundColor: catColor, boxShadow: isCatActive ? `0 0 8px ${catColor}` : 'none' }} 
+                        className={`w-1.5 h-1.5 rounded-full transition-transform ${isCatActive ? 'scale-125 ring-2 ring-offset-1 ring-offset-transparent' : 'group-hover:scale-125'}`} 
+                        style={{ backgroundColor: catColor, ringColor: `${catColor}40` }} 
                       />
-                      <span className="group-hover:text-blue-600 transition-colors">{cat.title}</span>
+                      <span className="group-hover:text-blue-600 transition-colors truncate">{cat.title}</span>
                     </div>
                     
                     {/* Children Word Cloud */}
-                    <div className="flex flex-wrap gap-2 pl-4 border-l-2 ml-1 transition-colors duration-300" style={{ borderColor: isCatActive ? `${catColor}40` : '#e2e8f0' }}>
+                    <div className="flex flex-wrap gap-1.5 pl-3.5 border-l border-dashed ml-[3px] transition-colors duration-300" style={{ borderColor: isCatActive ? `${catColor}40` : '#e2e8f0' }}>
                       {children.map(child => {
                         const heatScale = Math.min((child.heat || 0) / 12000, 1);
                         const isHot = heatScale > 0.6;
@@ -74,12 +76,11 @@ export function Sidebar({ activeNode, onNodeClick }: SidebarProps) {
                           <span 
                             key={child.id}
                             onClick={() => onNodeClick(child)}
-                            className={`cursor-pointer transition-all hover:-translate-y-0.5 inline-block px-2 py-1 rounded-md border ${isChildActive ? 'bg-white shadow-sm' : 'bg-transparent border-transparent hover:bg-slate-50 hover:border-slate-200'}`}
+                            className={`cursor-pointer transition-all hover:-translate-y-0.5 inline-block px-1.5 py-0.5 rounded text-[10px] ${isChildActive ? 'bg-white shadow-sm ring-1 ring-slate-100' : 'hover:bg-white/50'}`}
                             style={{
-                              borderColor: isChildActive ? `${catColor}30` : undefined,
-                              fontSize: `${11 + heatScale * 3}px`,
                               color: isChildActive ? '#0f172a' : (isHot ? '#ea580c' : '#64748b'),
-                              fontWeight: isChildActive || isHot ? 700 : 500
+                              fontWeight: isChildActive || isHot ? 600 : 400,
+                              opacity: isChildActive || isHot ? 1 : 0.8
                             }}
                           >
                             {child.title}
