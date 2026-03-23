@@ -347,9 +347,9 @@ function App() {
   const [activeNode, setActiveNode] = useState(null);
   const [viewMode, setViewMode] = useState('taxonomy');
   
-  // Heatmap specific state
-  const [timeRange, setTimeRange] = useState('month'); // week, month, year
-  const [sortType, setSortType] = useState('heat'); // heat, speed
+  // Heatmap specific state (fixed to month/heat)
+  const timeRange = 'month'; 
+  const sortType = 'heat';
 
   const handleNodeClick = (node) => {
     setActiveNode(node);
@@ -399,11 +399,10 @@ function App() {
       ) : (
         <>
           <HeatmapControlBar 
-            onBack={() => setViewMode('taxonomy')} 
-            timeRange={timeRange}
-            setTimeRange={setTimeRange}
-            sortType={sortType}
-            setSortType={setSortType}
+            onBack={() => {
+              setActiveNode(null);
+              setViewMode('taxonomy');
+            }} 
           />
           <HotTrendsSidebar 
             onNodeClick={handleNodeClick} 
