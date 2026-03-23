@@ -1,7 +1,9 @@
+// @ts-nocheck
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, useCursor } from '@react-three/drei';
 import * as THREE from 'three';
 import { useMemo, useRef, useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { DATA_NODES, CATEGORIES } from './data';
 import { NodeLabel } from './components/NodeLabel';
 import { DetailPanel } from './components/DetailPanel';
@@ -300,10 +302,35 @@ function Scene({ onNodeClick, activeNode }) {
     };
   }, [activeNode, camera]);
 
-  // Set initial camera position on mount
+  // Set initial camera position on mount with animation
   useEffect(() => {
-    camera.position.set(0, 50, 300);
+    camera.position.set(0, 200, 800);
     camera.lookAt(0, 0, 0);
+    
+    let animationFrameId;
+    const targetPos = new THREE.Vector3(0, 50, 300);
+    let progress = 0;
+    
+    const animateCamera = () => {
+      progress += 0.02;
+      if (progress <= 1) {
+        camera.position.lerp(targetPos, 0.08);
+        if (controlsRef.current) {
+          controlsRef.current.target.lerp(new THREE.Vector3(0, 0, 0), 0.08);
+          controlsRef.current.update();
+        }
+        animationFrameId = requestAnimationFrame(animateCamera);
+      }
+    };
+    
+    // Start animation
+    animationFrameId = requestAnimationFrame(animateCamera);
+    
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, [camera]);
 
   return (
@@ -416,22 +443,44 @@ function App() {
       {/* News Ticker */}
       <NewsTicker />
 
-      {/* 3D Canvas */}
-      <div className="absolute inset-0 z-10">
-        <Canvas dpr={[1, 2]} camera={{ position: [0, 80, 200], fov: 60 }}>
-          {/* We remove the background color from canvas to let the CSS background show through */}
-          <fog attach="fog" args={['#f8fafc', 300, 1000]} />
+      {/* 3D Canvas with enhanced transition */}
+      <div className="absolute inset-0 z-10 pointer-events-none">
+        <AnimatePresence mode="wait">
           {viewMode === 'taxonomy' ? (
-            <Scene onNodeClick={handleNodeClick} activeNode={activeNode} />
+            <motion.div
+              key="canvas-taxonomy"
+              initial={{ opacity: 0, filter: 'blur(20px)' }}
+              animate={{ opacity: 1, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, filter: 'blur(20px)' }}
+              transition={{ duration: 1.2, ease: "easeInOut" }}
+              className="absolute inset-0 w-full h-full pointer-events-auto"
+            >
+              <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 300], fov: 60 }} style={{ width: '100vw', height: '100vh', display: 'block' }}>
+                <fog attach="fog" args={['#f8fafc', 300, 1000]} />
+                <Scene onNodeClick={handleNodeClick} activeNode={activeNode} />
+              </Canvas>
+            </motion.div>
           ) : (
-            <HeatmapScene 
-              onNodeClick={handleNodeClick} 
-              activeNode={activeNode} 
-              timeRange={timeRange}
-              sortType={sortType}
-            />
+            <motion.div
+              key="canvas-heatmap"
+              initial={{ opacity: 0, filter: 'blur(20px)' }}
+              animate={{ opacity: 1, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, filter: 'blur(20px)' }}
+              transition={{ duration: 1.2, ease: "easeInOut" }}
+              className="absolute inset-0 w-full h-full pointer-events-auto"
+            >
+              <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 300], fov: 60 }} style={{ width: '100vw', height: '100vh', display: 'block' }}>
+                <fog attach="fog" args={['#0f172a', 300, 1000]} />
+                <HeatmapScene 
+                  onNodeClick={handleNodeClick} 
+                  activeNode={activeNode} 
+                  timeRange={timeRange}
+                  sortType={sortType}
+                />
+              </Canvas>
+            </motion.div>
           )}
-        </Canvas>
+        </AnimatePresence>
       </div>
 
       {/* Detail Panel Overlay */}

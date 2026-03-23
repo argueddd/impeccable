@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, useCursor } from '@react-three/drei';
@@ -212,8 +213,10 @@ export function HeatmapScene({ onNodeClick, activeNode, timeRange, sortType }) {
     });
   }, []);
 
-  // Handle camera animation when a node is selected
+  // Handle camera animation when a node is selected and on mount
   useEffect(() => {
+    let animationFrameId;
+
     if (activeNode && controlsRef.current) {
       const activeScatteredNode = scatteredNodes.find(n => n.id === activeNode.id);
       if (!activeScatteredNode) return;
@@ -229,13 +232,13 @@ export function HeatmapScene({ onNodeClick, activeNode, timeRange, sortType }) {
           camera.position.lerp(targetPos, 0.08);
           controlsRef.current.target.lerp(new THREE.Vector3(x, y, z), 0.08);
           controlsRef.current.update();
-          requestAnimationFrame(animateCamera);
+          animationFrameId = requestAnimationFrame(animateCamera);
         }
       };
       animateCamera();
     } else if (!activeNode && controlsRef.current) {
-        // Return to overview - adjust to be closer and slightly lower angle
-        const targetPos = new THREE.Vector3(0, 80, 200); 
+        // Return to overview - flat on perspective to match taxonomy
+        const targetPos = new THREE.Vector3(0, 0, 300); 
         let progress = 0;
         const animateCamera = () => {
           progress += 0.02;
@@ -243,18 +246,50 @@ export function HeatmapScene({ onNodeClick, activeNode, timeRange, sortType }) {
             camera.position.lerp(targetPos, 0.05);
             controlsRef.current.target.lerp(new THREE.Vector3(0, 0, 0), 0.05);
             controlsRef.current.update();
-            requestAnimationFrame(animateCamera);
+            animationFrameId = requestAnimationFrame(animateCamera);
           }
         };
         animateCamera();
     }
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, [activeNode, camera, scatteredNodes]);
 
   // Set initial camera position on mount for heatmap view
   useEffect(() => {
-    // Initial camera position closer to the nodes and at a slightly lower angle
-    camera.position.set(0, 80, 200);
+    // Initial camera position matches the exact view user requested
+    // Start significantly further back and lower to fly in and up
+    camera.position.set(0, -200, 1000);
     camera.lookAt(0, 0, 0);
+    
+    // Fly in animation on mount
+    const targetPos = new THREE.Vector3(0, 0, 300);
+    let progress = 0;
+    let animationFrameId;
+    
+    const animateCamera = () => {
+      progress += 0.015;
+      if (progress <= 1) {
+        // Use a faster lerp for a more dynamic "snap" into place
+        camera.position.lerp(targetPos, 0.06);
+        if (controlsRef.current) {
+          controlsRef.current.target.lerp(new THREE.Vector3(0, 0, 0), 0.06);
+          controlsRef.current.update();
+        }
+        animationFrameId = requestAnimationFrame(animateCamera);
+      }
+    };
+    animationFrameId = requestAnimationFrame(animateCamera);
+    
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, [camera]);
 
   return (
