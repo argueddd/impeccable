@@ -126,3 +126,181 @@ export const RAW_DATA = [
 ];
 
 export const DATA_NODES = computeGraphPositions();
+
+// --- New Heatmap Data Structure ---
+
+export const HEATMAP_DATA = {
+  timeGranularity: "day",
+  timeRange: "30d",
+  updateTime: "2026-03-23 10:30:00",
+  keywords: [
+    { id: "hm_1", keyword: "智能体", heatScore: 100, changeRate: 18.2, status: "上升", isNew: false, category: "agent" },
+    { id: "hm_2", keyword: "OpenClaw", heatScore: 96, changeRate: 24.5, status: "新晋", isNew: true, category: "model" },
+    { id: "hm_3", keyword: "具身智能", heatScore: 92, changeRate: 16.8, status: "上升", isNew: false, category: "agent" },
+    { id: "hm_4", keyword: "人形机器人", heatScore: 89, changeRate: 14.3, status: "上升", isNew: false, category: "agent" },
+    { id: "hm_5", keyword: "AI落地", heatScore: 86, changeRate: 11.7, status: "稳定", isNew: false, category: "industry" },
+    { id: "hm_6", keyword: "智能经济", heatScore: 82, changeRate: 10.5, status: "上升", isNew: false, category: "industry" },
+    { id: "hm_7", keyword: "机器人", heatScore: 80, changeRate: 8.9, status: "稳定", isNew: false, category: "agent" },
+    { id: "hm_8", keyword: "物理AI", heatScore: 78, changeRate: 13.6, status: "上升", isNew: false, category: "agent" },
+    { id: "hm_9", keyword: "AI安全", heatScore: 76, changeRate: 12.1, status: "上升", isNew: false, category: "policy" },
+    { id: "hm_10", keyword: "AI治理", heatScore: 74, changeRate: 9.8, status: "稳定", isNew: false, category: "policy" },
+    { id: "hm_11", keyword: "企业AI", heatScore: 73, changeRate: 8.4, status: "稳定", isNew: false, category: "industry" },
+    { id: "hm_12", keyword: "落地", heatScore: 71, changeRate: 6.1, status: "稳定", isNew: false, category: "industry" },
+    { id: "hm_13", keyword: "执行", heatScore: 69, changeRate: 7.4, status: "稳定", isNew: false, category: "agent" },
+    { id: "hm_14", keyword: "数字员工", heatScore: 67, changeRate: 15.2, status: "上升", isNew: false, category: "agent" },
+    { id: "hm_15", keyword: "世界模型", heatScore: 66, changeRate: 11.9, status: "上升", isNew: false, category: "model" },
+    { id: "hm_16", keyword: "端侧AI", heatScore: 64, changeRate: 10.8, status: "上升", isNew: false, category: "hardware" },
+    { id: "hm_17", keyword: "AI硬件", heatScore: 63, changeRate: 9.2, status: "稳定", isNew: false, category: "hardware" },
+    { id: "hm_18", keyword: "大模型", heatScore: 62, changeRate: 5.6, status: "稳定", isNew: false, category: "model" },
+    { id: "hm_19", keyword: "国产模型", heatScore: 60, changeRate: 7.1, status: "稳定", isNew: false, category: "model" },
+    { id: "hm_20", keyword: "算力", heatScore: 59, changeRate: 6.8, status: "稳定", isNew: false, category: "hardware" },
+    { id: "hm_21", keyword: "Agent", heatScore: 58, changeRate: 14.9, status: "上升", isNew: false, category: "agent" },
+    { id: "hm_22", keyword: "多模态", heatScore: 56, changeRate: 9.7, status: "稳定", isNew: false, category: "model" },
+    { id: "hm_23", keyword: "工具调用", heatScore: 55, changeRate: 13.5, status: "上升", isNew: false, category: "agent" },
+    { id: "hm_24", keyword: "工作流", heatScore: 54, changeRate: 8.3, status: "稳定", isNew: false, category: "agent" },
+    { id: "hm_25", keyword: "商业化", heatScore: 53, changeRate: 7.9, status: "稳定", isNew: false, category: "industry" },
+    { id: "hm_26", keyword: "数据安全", heatScore: 52, changeRate: 8.8, status: "稳定", isNew: false, category: "policy" },
+    { id: "hm_27", keyword: "隐私", heatScore: 50, changeRate: 6.5, status: "稳定", isNew: false, category: "policy" },
+    { id: "hm_28", keyword: "行业智能化", heatScore: 49, changeRate: 9.4, status: "上升", isNew: false, category: "industry" },
+    { id: "hm_29", keyword: "AI浏览器", heatScore: 47, changeRate: 12.7, status: "上升", isNew: true, category: "app" },
+    { id: "hm_30", keyword: "终端", heatScore: 46, changeRate: 5.1, status: "稳定", isNew: false, category: "hardware" },
+    { id: "hm_31", keyword: "标准", heatScore: 45, changeRate: 4.8, status: "稳定", isNew: false, category: "policy" },
+    { id: "hm_32", keyword: "场景应用", heatScore: 44, changeRate: 8.1, status: "稳定", isNew: false, category: "app" },
+    { id: "hm_33", keyword: "推理", heatScore: 43, changeRate: 10.2, status: "上升", isNew: false, category: "model" },
+    { id: "hm_34", keyword: "开源", heatScore: 42, changeRate: 6.7, status: "稳定", isNew: false, category: "model" },
+    { id: "hm_35", keyword: "中国AI", heatScore: 41, changeRate: 5.9, status: "稳定", isNew: false, category: "industry" },
+    { id: "hm_36", keyword: "医疗机器人", heatScore: 40, changeRate: 9.6, status: "上升", isNew: false, category: "app" },
+    { id: "hm_37", keyword: "工业AI", heatScore: 39, changeRate: 7.2, status: "稳定", isNew: false, category: "industry" },
+    { id: "hm_38", keyword: "转型", heatScore: 38, changeRate: 4.5, status: "稳定", isNew: false, category: "industry" },
+    { id: "hm_39", keyword: "知识库", heatScore: 36, changeRate: 7.8, status: "稳定", isNew: false, category: "app" },
+    { id: "hm_40", keyword: "平台", heatScore: 35, changeRate: 5.3, status: "稳定", isNew: false, category: "app" }
+  ]
+};
+
+// Generate derived heatmap data based on filters
+export const getDerivedHeatmapData = (timeRange, sortType) => {
+  // Deep clone to avoid mutating original
+  let keywords = JSON.parse(JSON.stringify(HEATMAP_DATA.keywords));
+  
+  // Seed based deterministic perturbation
+  keywords = keywords.map((kw, index) => {
+    // Generate pseudo-random modifiers based on the string lengths and index to be stable
+    const seed1 = (kw.keyword.length * 13 + index * 7) % 100 / 100;
+    const seed2 = (kw.keyword.length * 17 + index * 11) % 100 / 100;
+    
+    let heatModifier = 1;
+    let changeModifier = 1;
+    
+    if (timeRange === 'week') {
+      // Week is more volatile
+      heatModifier = 0.6 + seed1 * 0.8;
+      changeModifier = 0.5 + seed2 * 1.5;
+    } else if (timeRange === 'year') {
+      // Year is more stable, different top terms
+      heatModifier = 0.8 + seed2 * 0.5;
+      changeModifier = 0.3 + seed1 * 0.7;
+    }
+    
+    kw.heatScore = Math.min(100, Math.max(10, Math.round(kw.heatScore * heatModifier)));
+    kw.changeRate = Number((kw.changeRate * changeModifier).toFixed(1));
+    
+    return kw;
+  });
+  
+  // Sort
+  if (sortType === 'speed') {
+    keywords.sort((a, b) => b.changeRate - a.changeRate);
+  } else {
+    keywords.sort((a, b) => b.heatScore - a.heatScore);
+  }
+  
+  // Recalculate 'isNew' and 'status' roughly based on the new sorted data
+  keywords.forEach((kw, i) => {
+    if (sortType === 'speed' && i < 5 && kw.changeRate > 20) {
+      kw.isNew = true;
+      kw.status = '新晋';
+    } else if (kw.changeRate > 10) {
+      kw.isNew = false;
+      kw.status = '上升';
+    } else {
+      kw.isNew = false;
+      kw.status = '稳定';
+    }
+  });
+
+  // Re-normalize top score to 100 for visual consistency
+  const maxHeat = Math.max(...keywords.map(k => k.heatScore));
+  if (maxHeat > 0) {
+    keywords.forEach(kw => {
+      kw.heatScore = Math.round((kw.heatScore / maxHeat) * 100);
+    });
+  }
+  
+  return {
+    ...HEATMAP_DATA,
+    timeRange: timeRange === 'week' ? '7d' : timeRange === 'year' ? '365d' : '30d',
+    keywords
+  };
+};
+
+// Helper function to get mock details for a keyword when clicked
+export const getKeywordDetails = (keyword) => {
+  // Generate slightly different trends based on the keyword's base heatScore
+  const baseScore = keyword.heatScore;
+  
+  return {
+    ...keyword,
+    newsCount: Math.floor(baseScore * 1.5 + Math.random() * 50),
+    trend: {
+      day: [
+        { date: "03-17", value: Math.max(10, baseScore - 28) },
+        { date: "03-18", value: Math.max(15, baseScore - 25) },
+        { date: "03-19", value: Math.max(20, baseScore - 21) },
+        { date: "03-20", value: Math.max(30, baseScore - 17) },
+        { date: "03-21", value: Math.max(45, baseScore - 11) },
+        { date: "03-22", value: Math.max(70, baseScore - 5) },
+        { date: "03-23", value: baseScore }
+      ],
+      week: [
+        { date: "W05", value: Math.max(10, baseScore - 42) },
+        { date: "W06", value: Math.max(20, baseScore - 36) },
+        { date: "W07", value: Math.max(35, baseScore - 27) },
+        { date: "W08", value: Math.max(60, baseScore - 16) },
+        { date: "W09", value: baseScore }
+      ],
+      month: [
+        { date: "2025-11", value: Math.max(5, baseScore - 68) },
+        { date: "2025-12", value: Math.max(10, baseScore - 55) },
+        { date: "2026-01", value: Math.max(25, baseScore - 39) },
+        { date: "2026-02", value: Math.max(50, baseScore - 21) },
+        { date: "2026-03", value: baseScore }
+      ]
+    },
+    newsList: [
+      {
+        id: `news_${keyword.id}_1`,
+        title: `${keyword.keyword}持续升温，企业开始从对话走向执行闭环`,
+        summary: `近期多家厂商在${keyword.keyword}相关方向持续发布新进展，企业侧关注点从基础能力逐渐转向实际落地。`,
+        publishTime: "2小时前",
+        sourceName: "行业快讯",
+        url: "#"
+      },
+      {
+        id: `news_${keyword.id}_2`,
+        title: `围绕${keyword.keyword}的协同成热点，工具调用成为关注焦点`,
+        summary: `多篇报道提到，${keyword.keyword}能力的关键已不只是生成，而是任务拆解、工具接入与执行反馈机制。`,
+        publishTime: "今天",
+        sourceName: "AI观察",
+        url: "#"
+      },
+      {
+        id: `news_${keyword.id}_3`,
+        title: `从理论到行动，行业正在进入${keyword.keyword}阶段`,
+        summary: `关于${keyword.keyword}的讨论持续升温，尤其是在垂直行业、办公自动化、数据分析等场景中表现突出。`,
+        publishTime: "昨天",
+        sourceName: "产业研究",
+        url: "#"
+      }
+    ]
+  };
+};

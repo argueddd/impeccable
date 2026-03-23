@@ -107,9 +107,10 @@ export function PlatformButton() {
  * HeatmapButton - 热词聚合模式
  * 设计理念：燃烧的恒星。Hover 时产生强烈的热力扩散与引力环。
  */
-export function HeatmapButton() {
+export function HeatmapButton({ onClick }) {
   return (
     <motion.button
+      onClick={onClick}
       whileHover="hover"
       className="group relative flex items-center justify-center w-14 h-14 cursor-pointer pointer-events-auto"
     >

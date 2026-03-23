@@ -1,5 +1,5 @@
 import { CATEGORIES, DATA_NODES } from '../data';
-import { X, Activity, Clock, Zap, Flame, Newspaper, ArrowRight, ArrowLeft, TrendingUp, Users, Cpu, Network, MessageSquare, Share2 } from 'lucide-react';
+import { X, Activity, Clock, Zap, Flame, Newspaper, ArrowRight, ArrowLeft, TrendingUp, Users, Cpu, Network, MessageSquare, Share2, ExternalLink } from 'lucide-react';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
@@ -8,6 +8,53 @@ interface DetailPanelProps {
   node: any;
   onClose: () => void;
 }
+
+// A simple sparkline chart component using SVG for heatmap nodes
+const SparklineChart = ({ data, color }: { data: any[], color: string }) => {
+  if (!data || data.length === 0) return null;
+  
+  const min = Math.min(...data.map(d => d.value));
+  const max = Math.max(...data.map(d => d.value));
+  const range = max - min || 1;
+  
+  const width = 200;
+  const height = 40;
+  
+  // Create SVG path
+  const points = data.map((d, i) => {
+    const x = (i / (data.length - 1)) * width;
+    const y = height - ((d.value - min) / range) * height;
+    return `${x},${y}`;
+  });
+  
+  const pathData = `M ${points.join(' L ')}`;
+  const areaData = `M 0,${height} L ${points.join(' L ')} L ${width},${height} Z`;
+  
+  return (
+    <div className="w-full h-16 flex items-end">
+      <svg width="100%" height="100%" viewBox={`0 -5 ${width} ${height + 10}`} preserveAspectRatio="none">
+        <defs>
+          <linearGradient id={`gradient-${color.replace('#', '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor={color} stopOpacity={0.3} />
+            <stop offset="100%" stopColor={color} stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <path d={areaData} fill={`url(#gradient-${color.replace('#', '')})`} />
+        <path d={pathData} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        
+        {/* Current Value Dot */}
+        {points.length > 0 && (
+          <circle 
+            cx={width} 
+            cy={height - ((data[data.length - 1].value - min) / range) * height} 
+            r="3" 
+            fill={color} 
+          />
+        )}
+      </svg>
+    </div>
+  );
+};
 
 // Mock news data with richer details for sub-nodes
 const MOCK_NEWS = [
@@ -67,9 +114,10 @@ export function DetailPanel({ node, onClose, onTopicClick }: DetailPanelProps & 
     setCommentState(prev => ({ ...prev, isOpen: false }));
   };
 
-  // Determine what to render based on whether it's a main category or a sub-topic
+  // Determine what to render based on whether it's a main category, a sub-topic, or a heatmap node
   const isCategory = node?.isCategory;
-  const parentNode = (!isCategory && node?.parent) ? DATA_NODES.find(n => n.id === node.parent) : null;
+  const isHeatmapNode = node?.hasOwnProperty('heatScore');
+  const parentNode = (!isCategory && !isHeatmapNode && node?.parent) ? DATA_NODES.find(n => n.id === node.parent) : null;
 
   return (
     <>
@@ -94,8 +142,8 @@ export function DetailPanel({ node, onClose, onTopicClick }: DetailPanelProps & 
                 <X size={20} />
               </button>
               
-              {/* Back to Parent Button for Sub-nodes */}
-              {!isCategory && parentNode && (
+              {/* Back to Parent Button for Sub-nodes (Taxonomy only) */}
+              {!isCategory && !isHeatmapNode && parentNode && (
                 <button 
                   onClick={() => onTopicClick(parentNode.id)}
                   className="mb-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-colors"
@@ -105,7 +153,7 @@ export function DetailPanel({ node, onClose, onTopicClick }: DetailPanelProps & 
               )}
 
               {/* Tag indicator */}
-              {isCategory && (
+              {isCategory && !isHeatmapNode && (
                 <span 
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 tracking-wide uppercase border"
                   style={{ 
@@ -118,7 +166,7 @@ export function DetailPanel({ node, onClose, onTopicClick }: DetailPanelProps & 
                   领域枢纽 (Category)
                 </span>
               )}
-              {!isCategory && !parentNode && (
+              {!isCategory && !isHeatmapNode && !parentNode && (
                 <span 
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 tracking-wide uppercase border"
                   style={{ 
@@ -131,21 +179,38 @@ export function DetailPanel({ node, onClose, onTopicClick }: DetailPanelProps & 
                   技术节点 (Topic)
                 </span>
               )}
+              {isHeatmapNode && (
+                <span 
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-4 tracking-wide uppercase border"
+                  style={{ 
+                    backgroundColor: `${color}10`, 
+                    color: color,
+                    borderColor: `${color}30`
+                  }}
+                >
+                  <Flame size={12} />
+                  热词洞察 (Trend Insight)
+                </span>
+              )}
               
               <h2 className="text-3xl font-bold text-slate-900 leading-tight mb-3">
-                {node.title}
+                {isHeatmapNode ? node.keyword : node.title}
               </h2>
               
-              <p className="text-slate-600 leading-relaxed text-sm">
-                {desc}
-              </p>
+              {!isHeatmapNode && (
+                <p className="text-slate-600 leading-relaxed text-sm">
+                  {desc}
+                </p>
+              )}
             </div>
 
             {/* Content Scroll Area */}
             <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50">
               
-              {/* Conditional Rendering: Main Category gets Stats, Sub-nodes get richer News */}
-              {isCategory ? (
+              {/* Conditional Rendering: Main Category gets Stats, Sub-nodes get richer News, Heatmap nodes get Trends */}
+              {isHeatmapNode ? (
+                <HeatmapDetailFeed color={color} node={node} />
+              ) : isCategory ? (
                 <CategoryDashboard color={color} node={node} onTopicClick={onTopicClick} onOpenComments={handleOpenComments} />
               ) : (
                 <TopicNewsFeed color={color} node={node} onOpenComments={handleOpenComments} />
@@ -420,6 +485,115 @@ function TopicNewsFeed({ color, node, onOpenComments }: { color: string, node: a
         <button className="px-6 py-2.5 rounded-full border border-slate-300 text-sm font-bold text-slate-600 hover:text-slate-900 hover:bg-white hover:shadow-sm transition-all inline-flex items-center gap-2 relative z-50 bg-slate-50/50 backdrop-blur-sm">
           加载更多 <ArrowRight size={14} />
         </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// COMPONENT: Detail Feed for Heatmap Nodes (Trends + News)
+// ============================================================================
+function HeatmapDetailFeed({ color, node }: { color: string, node: any }) {
+  const [trendRange, setTrendRange] = useState('day'); // day, week, month
+
+  // Determine trend color based on status
+  const trendColor = node.status === '上升' ? '#ef4444' : node.isNew ? '#d946ef' : '#3b82f6';
+
+  return (
+    <div className="p-8 space-y-8">
+      {/* Heat Metrics */}
+      <div className="flex items-center gap-4">
+        <div className="flex-1 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center">
+          <span className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1"><Flame size={12} className="text-orange-500" /> 热度值</span>
+          <span className="text-2xl font-black text-slate-800 font-mono">{node.heatScore}</span>
+        </div>
+        <div className="flex-1 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center items-center">
+          <span className="text-xs font-bold text-slate-400 mb-1 flex items-center gap-1"><TrendingUp size={12} style={{ color: trendColor }} /> 较上期</span>
+          <span className="text-xl font-bold font-mono" style={{ color: trendColor }}>
+            {node.changeRate > 0 ? '+' : ''}{node.changeRate}%
+          </span>
+        </div>
+      </div>
+
+      {/* Trend Chart */}
+      {node.trend && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+              <Activity size={16} />
+              全网热度趋势
+            </h4>
+            
+            {/* Trend Range Toggle */}
+            <div className="flex bg-slate-100 rounded-md p-1 border border-slate-200">
+              {['day', 'week', 'month'].map(range => (
+                <button
+                  key={range}
+                  onClick={() => setTrendRange(range)}
+                  className={`px-3 py-1 text-[11px] font-bold rounded transition-all ${
+                    trendRange === range 
+                      ? 'bg-white text-slate-800 shadow-sm' 
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  {range === 'day' ? '日' : range === 'week' ? '周' : '月'}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm relative overflow-hidden">
+            <SparklineChart 
+              data={node.trend[trendRange]} 
+              color={node.heatScore > 80 ? '#f97316' : '#38bdf8'} 
+            />
+            <div className="flex justify-between mt-3 text-[10px] text-slate-400 font-mono font-bold">
+              <span>{node.trend[trendRange][0].date}</span>
+              <span>{node.trend[trendRange][node.trend[trendRange].length - 1].date}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Associated News */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+            <Newspaper size={16} />
+            关键资讯溯源
+          </h4>
+          {node.newsCount && (
+            <span className="text-[10px] font-mono font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+              {node.newsCount} 篇关联报道
+            </span>
+          )}
+        </div>
+        
+        <div className="space-y-3">
+          {(node.newsList || []).map((item, idx) => (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              key={item.id} 
+              className="group cursor-pointer bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all hover:border-slate-300"
+            >
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <h4 className="font-bold text-slate-800 text-[13px] leading-snug group-hover:text-blue-600 transition-colors line-clamp-2 flex-1">
+                  {item.title}
+                </h4>
+                <ExternalLink size={14} className="text-slate-300 group-hover:text-blue-500 shrink-0 mt-0.5" />
+              </div>
+              <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2 mb-3">
+                {item.summary}
+              </p>
+              <div className="flex items-center justify-between text-[10px] font-medium text-slate-400">
+                <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-500">{item.sourceName}</span>
+                <span>{item.publishTime}</span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </div>
   );

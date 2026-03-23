@@ -8,6 +8,9 @@ import { DetailPanel } from './components/DetailPanel';
 import { Sidebar } from './components/Sidebar';
 import { PlatformButton, HeatmapButton } from './components/TechNav';
 import { NewsTicker } from './components/NewsTicker';
+import { HeatmapScene } from './components/HeatmapScene';
+import { HeatmapControlBar } from './components/HeatmapControlBar';
+import { HotTrendsSidebar } from './components/HotTrendsSidebar';
 
 // --- 3D Scene Components ---
 
@@ -255,6 +258,8 @@ function Scene({ onNodeClick, activeNode }) {
 
   // Handle camera animation when a node is selected
   useEffect(() => {
+    let animationFrameId;
+
     if (activeNode && controlsRef.current) {
       const [x, y, z] = activeNode.pos;
       // Define a target position for the camera slightly in front of the node
@@ -268,7 +273,7 @@ function Scene({ onNodeClick, activeNode }) {
           camera.position.lerp(targetPos, 0.08);
           controlsRef.current.target.lerp(new THREE.Vector3(x, y, z), 0.08);
           controlsRef.current.update();
-          requestAnimationFrame(animateCamera);
+          animationFrameId = requestAnimationFrame(animateCamera);
         }
       };
       animateCamera();
@@ -282,11 +287,17 @@ function Scene({ onNodeClick, activeNode }) {
             camera.position.lerp(targetPos, 0.05);
             controlsRef.current.target.lerp(new THREE.Vector3(0, 0, 0), 0.05);
             controlsRef.current.update();
-            requestAnimationFrame(animateCamera);
+            animationFrameId = requestAnimationFrame(animateCamera);
           }
         };
         animateCamera();
     }
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, [activeNode, camera]);
 
   // Set initial camera position on mount
@@ -334,6 +345,11 @@ function CameraController({ targetNode }) {
 
 function App() {
   const [activeNode, setActiveNode] = useState(null);
+  const [viewMode, setViewMode] = useState('taxonomy');
+  
+  // Heatmap specific state
+  const [timeRange, setTimeRange] = useState('month'); // week, month, year
+  const [sortType, setSortType] = useState('heat'); // heat, speed
 
   const handleNodeClick = (node) => {
     setActiveNode(node);
@@ -365,29 +381,61 @@ function App() {
         </div>
         
         <div className="flex gap-2 pointer-events-auto">
-          <HeatmapButton />
+          {viewMode === 'taxonomy' && (
+            <HeatmapButton onClick={() => setViewMode('heatmap')} />
+          )}
         </div>
       </header>
 
-      {/* Sidebar for Taxonomy (Now on the right) */}
-      <Sidebar activeNode={activeNode} onNodeClick={handleNodeClick} />
-      
-      {/* Platform Entry Button (Replaced Agent Ranking on the left) */}
-      <PlatformButton />
+      {/* UI Overlays based on View Mode */}
+      {viewMode === 'taxonomy' ? (
+        <>
+          {/* Sidebar for Taxonomy (Now on the right) */}
+          <Sidebar activeNode={activeNode} onNodeClick={handleNodeClick} />
+          
+          {/* Platform Entry Button (Replaced Agent Ranking on the left) */}
+          <PlatformButton />
+        </>
+      ) : (
+        <>
+          <HeatmapControlBar 
+            onBack={() => setViewMode('taxonomy')} 
+            timeRange={timeRange}
+            setTimeRange={setTimeRange}
+            sortType={sortType}
+            setSortType={setSortType}
+          />
+          <HotTrendsSidebar 
+            onNodeClick={handleNodeClick} 
+            activeNode={activeNode} 
+            timeRange={timeRange}
+            sortType={sortType}
+          />
+        </>
+      )}
       
       {/* News Ticker */}
       <NewsTicker />
 
       {/* 3D Canvas */}
       <div className="absolute inset-0 z-10">
-        <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 450], fov: 60 }}>
+        <Canvas dpr={[1, 2]} camera={{ position: [0, 80, 200], fov: 60 }}>
           {/* We remove the background color from canvas to let the CSS background show through */}
           <fog attach="fog" args={['#f8fafc', 300, 1000]} />
-          <Scene onNodeClick={handleNodeClick} activeNode={activeNode} />
+          {viewMode === 'taxonomy' ? (
+            <Scene onNodeClick={handleNodeClick} activeNode={activeNode} />
+          ) : (
+            <HeatmapScene 
+              onNodeClick={handleNodeClick} 
+              activeNode={activeNode} 
+              timeRange={timeRange}
+              sortType={sortType}
+            />
+          )}
         </Canvas>
       </div>
 
-      {/* Detail Slide-over Panel */}
+      {/* Detail Panel Overlay */}
       {activeNode && (
         <DetailPanel 
           node={activeNode} 
