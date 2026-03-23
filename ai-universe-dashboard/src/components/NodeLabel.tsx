@@ -40,7 +40,7 @@ export function NodeLabel({ node, onClick, opacity = 1 }: NodeLabelProps) {
         onPointerEnter={() => setHovered(true)}
         onPointerLeave={() => setHovered(false)}
         className={clsx(
-          "cursor-pointer select-none transition-all duration-300 backdrop-blur-md border-l-2 bg-white/80 shadow-sm whitespace-nowrap",
+          "cursor-pointer select-none border-l-2 bg-white/90 whitespace-nowrap will-change-transform",
           isCategory 
             ? "px-4 py-2 text-sm font-bold border-l-[3px]" 
             : "px-2.5 py-1 text-[11px] font-medium text-slate-500 hover:text-slate-800",
@@ -51,7 +51,8 @@ export function NodeLabel({ node, onClick, opacity = 1 }: NodeLabelProps) {
           color: isCategory ? '#0f172a' : undefined,
           transform: `scale(${hovered ? heatScale * 1.1 : heatScale})`,
           transformOrigin: 'center center',
-          boxShadow: isCategory ? `0 4px 20px ${color}15` : 'none'
+          // OPTIMIZATION: Removed expensive box-shadow and backdrop-blur
+          boxShadow: isCategory ? `0 2px 10px ${color}10` : 'none'
         }}
       >
         {node.title}

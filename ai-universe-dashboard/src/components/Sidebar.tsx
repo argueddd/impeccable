@@ -8,8 +8,8 @@ interface SidebarProps {
   onNodeClick: (node: any) => void;
 }
 
-export function Sidebar({ activeNode, onNodeClick }: SidebarProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+export function Sidebar({ activeNode, onNodeClick }) {
+  const [isExpanded, setIsExpanded] = useState(false); // 默认设为 false
   const categories = DATA_NODES.filter(n => n.isCategory);
   
   return (

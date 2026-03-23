@@ -6,7 +6,7 @@ import { DATA_NODES, CATEGORIES } from './data';
 import { NodeLabel } from './components/NodeLabel';
 import { DetailPanel } from './components/DetailPanel';
 import { Sidebar } from './components/Sidebar';
-import { AgentRanking } from './components/AgentRanking';
+import { PlatformButton, HeatmapButton } from './components/TechNav';
 import { NewsTicker } from './components/NewsTicker';
 
 // --- 3D Scene Components ---
@@ -18,15 +18,22 @@ function HolographicRings({ heat, color, isCategory, baseOpacity }) {
   // Sub-nodes max around 13500, Categories max around 40000+
   const normalizedHeat = isCategory ? (heat || 10000) / 10000 : (heat || 2000) / 3000;
   
-  // High heat nodes get more rings (max 4)
-  const ringCount = Math.min(Math.max(Math.floor(normalizedHeat), 1), 4);
+  // OPTIMIZATION: Only show rings for Categories or High Heat nodes (> 5000)
+  // Default heat is often low, so this culls many meshes
+  const showRings = isCategory || (heat > 5000);
+  
+  if (!showRings) return null;
+
+  // High heat nodes get more rings (max 3 to save draw calls)
+  const ringCount = Math.min(Math.max(Math.floor(normalizedHeat), 1), 3);
   const baseRadius = isCategory ? 12 : 4.5;
   
+  // OPTIMIZATION: Only animate if visible and significant to save resources
+  // Only animate Categories to save CPU cycles on useFrame
   useFrame((state, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.x += delta * (0.2 + normalizedHeat * 0.1);
-      groupRef.current.rotation.y -= delta * (0.3 + normalizedHeat * 0.1);
-      groupRef.current.rotation.z += delta * 0.1;
+    if (groupRef.current && baseOpacity > 0.1 && isCategory) {
+      groupRef.current.rotation.x += delta * 0.1;
+      groupRef.current.rotation.y -= delta * 0.15;
     }
   });
 
@@ -38,13 +45,13 @@ function HolographicRings({ heat, color, isCategory, baseOpacity }) {
       {[...Array(ringCount)].map((_, i) => {
         // Create an interesting offset for each ring
         const ringRadius = baseRadius + (i * (isCategory ? 3 : 1.5));
-        const ringOpacity = Math.min((0.2 + normalizedHeat * 0.1) * baseOpacity, 0.8);
+        const ringOpacity = Math.min((0.2 + normalizedHeat * 0.1) * baseOpacity, 0.6);
         
         return (
           <group key={i} rotation={[Math.PI/2 + i * 0.4, i * 0.8, 0]}>
-            {/* The solid ring */}
+            {/* The solid ring - Reduced segments for performance */}
             <mesh>
-              <ringGeometry args={[ringRadius, ringRadius + (isCategory ? 0.4 : 0.2), 64]} />
+              <ringGeometry args={[ringRadius, ringRadius + (isCategory ? 0.4 : 0.15), 24]} />
               <meshBasicMaterial 
                 color={color} 
                 transparent 
@@ -58,14 +65,14 @@ function HolographicRings({ heat, color, isCategory, baseOpacity }) {
         );
       })}
       
-      {/* Inner volumetric glow for very hot nodes */}
-      {normalizedHeat > 1.5 && (
+      {/* Inner volumetric glow for very hot nodes - Simplified */}
+      {normalizedHeat > 2 && (
         <mesh>
-          <sphereGeometry args={[baseRadius * 1.5, 32, 32]} />
+          <sphereGeometry args={[baseRadius * 1.5, 16, 16]} />
           <meshBasicMaterial 
             color={color} 
             transparent 
-            opacity={Math.min(0.08 * normalizedHeat * baseOpacity, 0.3)} 
+            opacity={Math.min(0.08 * normalizedHeat * baseOpacity, 0.2)} 
             blending={THREE.AdditiveBlending}
             depthWrite={false}
           />
@@ -266,8 +273,8 @@ function Scene({ onNodeClick, activeNode }) {
       };
       animateCamera();
     } else if (!activeNode && controlsRef.current) {
-        // Return to overview
-        const targetPos = new THREE.Vector3(0, 0, 450);
+        // Return to overview - 视角拉近，Z从450调整到300，Y稍微抬高
+        const targetPos = new THREE.Vector3(0, 50, 300);
         let progress = 0;
         const animateCamera = () => {
           progress += 0.02;
@@ -281,6 +288,12 @@ function Scene({ onNodeClick, activeNode }) {
         animateCamera();
     }
   }, [activeNode, camera]);
+
+  // Set initial camera position on mount
+  useEffect(() => {
+    camera.position.set(0, 50, 300);
+    camera.lookAt(0, 0, 0);
+  }, [camera]);
 
   return (
     <>
@@ -352,18 +365,15 @@ function App() {
         </div>
         
         <div className="flex gap-2 pointer-events-auto">
-          <div className="px-3 py-1 bg-white/50 backdrop-blur-md rounded-full border border-slate-200 text-xs font-medium text-slate-500 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            System Operational
-          </div>
+          <HeatmapButton />
         </div>
       </header>
 
       {/* Sidebar for Taxonomy (Now on the right) */}
       <Sidebar activeNode={activeNode} onNodeClick={handleNodeClick} />
       
-      {/* Agent Ranking Panel (Now on the left) */}
-      <AgentRanking />
+      {/* Platform Entry Button (Replaced Agent Ranking on the left) */}
+      <PlatformButton />
       
       {/* News Ticker */}
       <NewsTicker />
