@@ -6,6 +6,18 @@ export default {
   ],
   theme: {
     extend: {
+      animation: {
+        'spin-slow': 'spin 8s linear infinite',
+        'pulse-fast': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'bounce-slow': 'bounce 3s infinite',
+        'spin-reverse-slow': 'spin-reverse 8s linear infinite',
+      },
+      keyframes: {
+        'spin-reverse': {
+          'from': { transform: 'rotate(360deg)' },
+          'to': { transform: 'rotate(0deg)' }
+        }
+      },
       colors: {
         'tech-blue': '#0ea5e9',
         'tech-purple': '#8b5cf6',

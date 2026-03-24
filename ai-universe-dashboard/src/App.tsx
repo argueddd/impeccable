@@ -13,6 +13,7 @@ import { NewsTicker } from './components/NewsTicker';
 import { HeatmapScene } from './components/HeatmapScene';
 import { HeatmapControlBar } from './components/HeatmapControlBar';
 import { HotTrendsSidebar } from './components/HotTrendsSidebar';
+import { ClassicDashboard } from './components/ClassicDashboard';
 
 // --- 3D Scene Components ---
 
@@ -372,7 +373,7 @@ function CameraController({ targetNode }) {
 
 function App() {
   const [activeNode, setActiveNode] = useState(null);
-  const [viewMode, setViewMode] = useState('taxonomy');
+  const [viewMode, setViewMode] = useState('dashboard'); // 'taxonomy' | 'heatmap' | 'dashboard'
   
   // Heatmap specific state (fixed to month/heat)
   const timeRange = 'month'; 
@@ -381,6 +382,24 @@ function App() {
   const handleNodeClick = (node) => {
     setActiveNode(node);
   };
+
+  // If in classic dashboard mode, render it completely separate from the 3D setup
+  if (viewMode === 'dashboard') {
+    return (
+      <AnimatePresence mode="wait">
+        <motion.div
+          key="dashboard"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.5 }}
+          className="w-full h-screen overflow-hidden"
+        >
+          <ClassicDashboard onNavigateTo3D={() => setViewMode('taxonomy')} />
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
 
   return (
     <div className="w-full h-screen bg-slate-50 relative overflow-hidden font-sans text-slate-900">
@@ -407,7 +426,21 @@ function App() {
           </div>
         </div>
         
-        <div className="flex gap-2 pointer-events-auto">
+        <div className="flex gap-4 pointer-events-auto">
+          {viewMode === 'taxonomy' && (
+            <button 
+              onClick={() => setViewMode('dashboard')}
+              className="group relative flex items-center gap-2 px-5 py-2.5 bg-slate-900/80 hover:bg-slate-800 text-blue-300 font-medium text-sm rounded-full border border-blue-500/30 backdrop-blur-md transition-all duration-300 overflow-hidden"
+            >
+              {/* Hover glow effect */}
+              <div className="absolute inset-0 bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 transition-transform group-hover:-translate-x-1">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              <span className="relative z-10 tracking-wide">资讯大屏</span>
+            </button>
+          )}
           {viewMode === 'taxonomy' && (
             <HeatmapButton onClick={() => setViewMode('heatmap')} />
           )}
@@ -429,7 +462,8 @@ function App() {
             onBack={() => {
               setActiveNode(null);
               setViewMode('taxonomy');
-            }} 
+            }}
+            onHome={() => setViewMode('dashboard')}
           />
           <HotTrendsSidebar 
             onNodeClick={handleNodeClick} 

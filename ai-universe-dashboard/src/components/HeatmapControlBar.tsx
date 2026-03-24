@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Network } from 'lucide-react';
+import { Network, LayoutDashboard } from 'lucide-react';
 
-export function HeatmapControlBar({ onBack }) {
+export function HeatmapControlBar({ onBack, onHome }) {
   return (
     <>
       <motion.div 
@@ -10,8 +10,21 @@ export function HeatmapControlBar({ onBack }) {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: -50, opacity: 0 }}
         // Positioned in the top right corner
-        className="absolute top-8 right-8 z-30 pointer-events-auto flex items-center gap-6"
+        className="absolute top-8 right-8 z-30 pointer-events-auto flex items-center gap-4"
       >
+        {/* Home Button */}
+        {onHome && (
+          <button 
+            onClick={onHome}
+            className="group relative flex items-center gap-2 px-5 py-2.5 bg-slate-900/80 hover:bg-slate-800 text-blue-300 font-medium text-sm rounded-full border border-blue-500/30 backdrop-blur-md transition-all duration-300 overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 transition-transform group-hover:-translate-x-1">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            <span className="relative z-10 tracking-wide">资讯大屏</span>
+          </button>
+        )}
         {/* Back to Taxonomy Button - 3D Animated Style */}
         <button 
           onClick={onBack}
