@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, User, Search, ChevronDown, Download, ExternalLink, Filter, Check, Crown, ChevronRight, Zap, X } from 'lucide-react';
 
@@ -90,6 +90,34 @@ const mockAgents = [
       scenario: '招投标书智能撰写、客户需求意图洞察、竞品动态分析。',
       landing: '全省推广使用中，月均生成方案超5000份，中标率同比提升15%。',
       team: '政企支撑中心数据挖掘组负责模型微调与数据迭代。'
+    }
+  },
+  { 
+    id: 4, 
+    name: '智能客服助手', 
+    creator: '赵六', 
+    org: '客服中心', 
+    desc: '全渠道智能应答与多轮复杂对话处理，提升用户服务体验。', 
+    rank: 4, 
+    medalColor: 'transparent',
+    details: {
+      scenario: '话费查询、业务办理指引、投诉初步安抚。',
+      landing: '已全面接入APP与微信公众号，客服拦截率达到65%。',
+      team: '客服中心联合AI研发部共同打造，支持方言识别。'
+    }
+  },
+  { 
+    id: 5, 
+    name: '数据分析专家', 
+    creator: '钱七', 
+    org: '数智化部', 
+    desc: '基于自然语言的数据查询与可视化图表自动生成，降低数据消费门槛。', 
+    rank: 5, 
+    medalColor: 'transparent',
+    details: {
+      scenario: '经营日报生成、异常指标归因分析、自助提数。',
+      landing: '在多个业务部门推广使用，报表开发需求下降30%。',
+      team: '由数智化部数据中台团队主导研发。'
     }
   },
 ];
@@ -221,7 +249,28 @@ export function ClassicDashboard({ onNavigateTo3D }) {
   const [selectedDynamic, setSelectedDynamic] = useState(null);
   const [isWordCloudPaused, setIsWordCloudPaused] = useState(false);
   const [hoveredWord, setHoveredWord] = useState(null);
+  const [selectedCity, setSelectedCity] = useState('省端');
+  const [selectedRegionTab, setSelectedRegionTab] = useState('省端');
   const filterRef = useRef(null);
+
+  const cities = ['西安', '咸阳', '宝鸡', '渭南', '汉中', '延安', '榆林', '安康', '商洛', '铜川'];
+
+  const getCityData = (tab, city) => {
+    // Generate mock data variations based on the selection
+    const multiplier = tab === '省端' ? 1 : Math.random() * 0.4 + 0.1; // Cities have 10-50% of provincial traffic
+    
+    return [
+      { name: '数智化部', calls: (45.2 * multiplier).toFixed(1) + 'k', agentCount: Math.floor(124 * multiplier), progress: tab === '省端' ? 100 : Math.random() * 80 + 20 },
+      { name: '工程建设部', calls: (32.1 * multiplier).toFixed(1) + 'k', agentCount: Math.floor(98 * multiplier), progress: tab === '省端' ? 71 : Math.random() * 80 + 10 },
+      { name: '内审部', calls: (28.5 * multiplier).toFixed(1) + 'k', agentCount: Math.floor(86 * multiplier), progress: tab === '省端' ? 63 : Math.random() * 80 + 10 },
+      { name: '网络部', calls: (19.8 * multiplier).toFixed(1) + 'k', agentCount: Math.floor(65 * multiplier), progress: tab === '省端' ? 44 : Math.random() * 80 + 10 },
+      { name: '品质管理部', calls: (12.4 * multiplier).toFixed(1) + 'k', agentCount: Math.floor(42 * multiplier), progress: tab === '省端' ? 27 : Math.random() * 80 + 10 },
+      { name: '政企客户部', calls: (9.2 * multiplier).toFixed(1) + 'k', agentCount: Math.floor(38 * multiplier), progress: tab === '省端' ? 20 : Math.random() * 80 + 10 },
+      { name: '市场经营部', calls: (5.6 * multiplier).toFixed(1) + 'k', agentCount: Math.floor(24 * multiplier), progress: tab === '省端' ? 12 : Math.random() * 80 + 10 },
+    ].sort((a, b) => b.progress - a.progress); // Ensure it's always sorted by progress
+  };
+
+  const currentCityData = useMemo(() => getCityData(selectedRegionTab, selectedCity), [selectedRegionTab, selectedCity]);
 
   // Close filter when clicking outside
   useEffect(() => {
@@ -277,26 +326,6 @@ export function ClassicDashboard({ onNavigateTo3D }) {
         </div>
         
         <div className="flex items-center gap-6">
-          <button 
-            onClick={onNavigateTo3D}
-            className="group relative flex items-center justify-center w-12 h-12 rounded-full bg-slate-900 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] transition-all duration-300 border border-blue-500/30 overflow-hidden"
-            title="切换至 3D 星系视图"
-          >
-            {/* 呼吸发光背景 */}
-            <div className="absolute inset-0 bg-blue-500/20 rounded-full animate-pulse-fast"></div>
-            
-            {/* 核心星球 */}
-            <div className="relative z-10 w-4 h-4 rounded-full bg-gradient-to-tr from-blue-400 to-indigo-500 shadow-[0_0_10px_rgba(96,165,250,0.8)] group-hover:scale-110 transition-transform duration-300"></div>
-            
-            {/* 轨道环 */}
-            <svg className="absolute inset-0 w-full h-full text-blue-400/40 animate-spin-slow" viewBox="0 0 100 100">
-              <ellipse cx="50" cy="50" rx="40" ry="15" fill="none" stroke="currentColor" strokeWidth="1" transform="rotate(-30 50 50)" />
-              <ellipse cx="50" cy="50" rx="40" ry="15" fill="none" stroke="currentColor" strokeWidth="1" transform="rotate(30 50 50)" />
-            </svg>
-            
-            {/* 卫星点 */}
-            <div className="absolute w-1.5 h-1.5 bg-blue-200 rounded-full shadow-[0_0_5px_#fff] top-2 right-2 animate-bounce-slow"></div>
-          </button>
           <div className="w-8 h-8 text-blue-500 bg-blue-50 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-100 transition-colors">
             <Settings size={18} />
           </div>
@@ -320,38 +349,46 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                 </div>
                 <h2 className="font-bold text-slate-800 text-lg tracking-tight">活跃智能体排行榜</h2>
               </div>
-              <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-2 py-1 rounded-md border border-amber-100">本周标杆</span>
+              <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-2 py-1 rounded-md border border-amber-100">本周 Top 5</span>
             </div>
             
-            <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
+            <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-2 custom-scrollbar">
               {mockAgents.map((agent, index) => (
                 <div 
                   key={agent.id} 
-                  className="flex gap-3 items-start p-3 rounded-lg hover:bg-slate-50 transition-colors group cursor-pointer"
+                  className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors group cursor-pointer border border-transparent hover:border-slate-100"
                   onClick={() => setSelectedAgent(agent)}
                 >
-                  <div className="relative pt-1 shrink-0">
-                    <div 
-                      className="w-10 h-10 flex flex-col items-center justify-center rounded-xl text-white font-bold shadow-md transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300"
-                      style={{ 
-                        background: index === 0 ? 'linear-gradient(135deg, #fbbf24, #d97706)' : 
-                                   index === 1 ? 'linear-gradient(135deg, #94a3b8, #475569)' : 
-                                   'linear-gradient(135deg, #d97706, #92400e)'
-                      }}
-                    >
-                      <span className="text-lg drop-shadow-md">{agent.rank}</span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-5 text-center font-bold text-slate-400 group-hover:text-blue-500 transition-colors">
+                      {agent.rank}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <h3 className="text-sm font-bold text-slate-800 truncate group-hover:text-blue-600 transition-colors">{agent.name}</h3>
+                      <div className="flex items-center gap-2 text-[10px] text-slate-500 mt-0.5">
+                        <span>{agent.creator}</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                        <span className="truncate">{agent.org}</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-bold text-slate-800 truncate mb-1 group-hover:text-blue-600 transition-colors">{agent.name}</h3>
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">创建人: {agent.creator}</span>
-                    </div>
-                    <p className="text-[11px] text-slate-500 truncate mb-1 flex items-center gap-1">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                      {agent.org}
-                    </p>
-                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">{agent.desc}</p>
+                  
+                  <div className="shrink-0 ml-2">
+                    {agent.rank === 1 && (
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-500 flex items-center justify-center text-white shadow-sm" title="金牌">
+                        <Crown size={12} />
+                      </div>
+                    )}
+                    {agent.rank === 2 && (
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white shadow-sm" title="银牌">
+                        <Crown size={12} />
+                      </div>
+                    )}
+                    {agent.rank === 3 && (
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center text-white shadow-sm" title="铜牌">
+                        <Crown size={12} />
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -362,44 +399,118 @@ export function ClassicDashboard({ onNavigateTo3D }) {
             </button>
           </div>
 
-          {/* Shaanxi AI Dynamics */}
+          {/* Department Data Bar Chart */}
           <div className="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] p-5 border border-slate-100 flex-1 flex flex-col hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-shadow duration-300 min-h-0 h-[60%]">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-blue-600 shadow-sm">
-                <Zap size={16} className="fill-blue-500/20" />
-              </div>
-              <h2 className="font-bold text-slate-800 text-lg tracking-tight">陕西公司AI动态先知</h2>
-            </div>
-            
-            <div className="flex-1 flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar">
-              {mockDynamics.map((item, i) => (
-                <div 
-                  key={i} 
-                  className="flex gap-4 p-3 rounded-xl border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all duration-300 group cursor-pointer"
-                  onClick={() => setSelectedDynamic(item)}
-                >
-                  <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 flex flex-col items-center justify-center shrink-0 border border-slate-200/50 group-hover:from-blue-100 group-hover:to-blue-200 transition-colors">
-                    <span className="text-xs font-bold text-slate-400 group-hover:text-blue-500">{item.date.split('.')[1]}/{item.date.split('.')[2]}</span>
-                    <span className="text-[9px] font-medium text-slate-400 group-hover:text-blue-400">{item.date.split('.')[0]}</span>
-                  </div>
-                  <div className="flex-1 min-w-0 flex flex-col justify-center">
-                    <span className="text-[10px] font-bold text-blue-500 mb-1 tracking-wider uppercase">{item.category}</span>
-                    <h3 className="text-[13px] font-bold text-slate-800 line-clamp-2 leading-snug group-hover:text-blue-700 transition-colors">
-                      {item.title}
-                    </h3>
-                  </div>
+            <div className="flex flex-col gap-4 mb-5">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-blue-600 shadow-sm shrink-0">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                    <path d="M18 20V10M12 20V4M6 20v-6"></path>
+                  </svg>
                 </div>
-              ))}
+                <h2 className="font-bold text-slate-800 text-lg tracking-tight">各部门智能体数据一览</h2>
+              </div>
+              
+              {/* Region Tabs */}
+              <div className="flex items-center gap-4 border-b border-slate-100 pb-2">
+                {['省端', '地市'].map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => {
+                      setSelectedRegionTab(tab);
+                      if (tab === '地市' && selectedCity === '省端') {
+                        setSelectedCity('西安'); // Default to first city when switching to 地市
+                      }
+                    }}
+                    className={`text-sm font-bold pb-2 relative transition-colors ${
+                      selectedRegionTab === tab ? 'text-blue-600' : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    {tab}
+                    {selectedRegionTab === tab && (
+                      <motion.div 
+                        layoutId="regionTabIndicator"
+                        className="absolute bottom-[-9px] left-0 right-0 h-0.5 bg-blue-600 rounded-full"
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+              
+              {/* City Sub-tabs (Only show when 地市 is selected) */}
+              <AnimatePresence>
+                {selectedRegionTab === '地市' && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="flex items-center gap-1 overflow-x-auto pb-1 mt-3 custom-scrollbar hide-scrollbar"
+                  >
+                    {cities.map(city => (
+                      <button
+                        key={city}
+                        onClick={() => setSelectedCity(city)}
+                        className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-all duration-300 ${
+                          selectedCity === city 
+                            ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' 
+                            : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                        }`}
+                      >
+                        {city}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             
-            <button className="mt-4 pt-3 border-t border-slate-100 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors flex items-center justify-center gap-1 w-full">
-              探索更多动态 <ChevronRight size={14} />
-            </button>
+            <div className="flex-1 flex flex-col justify-start overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
+              <div className="flex items-center gap-3 mb-2 text-[10px] font-medium text-slate-400 px-2 sticky top-0 bg-white z-10 py-1">
+                <div className="w-[72px] shrink-0 text-right">部门名称</div>
+                <div className="flex-1 flex justify-between">
+                  <span>调用量及占比</span>
+                  <span className="w-12 text-right">智能体数量</span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3 pb-2">
+                {currentCityData.map((item, i) => (
+                  <div key={i} className="flex items-center gap-3 group">
+                    <div className="w-[72px] shrink-0 text-right">
+                      <span className="text-xs font-medium text-slate-600 truncate block">{item.name}</span>
+                    </div>
+                    <div className="flex-1 h-6 bg-slate-50 rounded-r-md relative flex items-center group-hover:bg-slate-100 transition-colors">
+                      <div 
+                        className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-r-md transition-all duration-1000 ease-out group-hover:from-blue-400 group-hover:to-blue-300"
+                        style={{ width: `${item.progress}%` }}
+                      ></div>
+                      <span className="absolute text-[10px] font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] transition-all duration-500 z-10 whitespace-nowrap"
+                      style={{ 
+                        left: item.progress < 25 ? `max(${item.progress}%, 28px)` : 'auto',
+                        right: item.progress >= 25 ? `calc(100% - ${item.progress}%)` : 'auto',
+                        paddingRight: item.progress >= 25 ? '8px' : '0',
+                        paddingLeft: item.progress < 25 ? '8px' : '0',
+                        color: item.progress < 25 ? '#2563eb' : 'white',
+                        textShadow: item.progress < 25 ? 'none' : '0 1px 2px rgba(0,0,0,0.5)'
+                      }}
+                      >
+                        {item.calls}
+                      </span>
+                    </div>
+                    <div className="w-12 shrink-0 flex justify-end">
+                      <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded group-hover:bg-blue-50 group-hover:text-blue-700 transition-colors">
+                        {item.agentCount}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Center Column (6 cols) */}
+        {/* Right Column (6 cols) */}
         <div className="col-span-6 flex flex-col gap-6 overflow-hidden h-full">
+          {/* Main Feed */}
           <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 flex flex-col overflow-hidden">
             <div className="p-6 shrink-0 border-b border-slate-100">
               <div className="flex items-center justify-between">
@@ -410,17 +521,45 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                     </svg>
                   </div>
                   <h2 className="font-bold text-slate-800 text-xl tracking-tight">AI 前沿资讯与分析</h2>
+                  
+                  <button 
+                    onClick={onNavigateTo3D}
+                    className="group relative flex items-center justify-center h-8 ml-3 rounded-full bg-slate-900 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] border border-blue-500/30 hover:border-blue-400/80 overflow-hidden cursor-pointer w-[68px] hover:w-[130px] shrink-0"
+                    title="查看AI资讯宇宙"
+                    style={{ willChange: 'width, transform' }}
+                  >
+                    {/* 呼吸发光背景 - 简化为不使用无限动画，仅使用透明度 */}
+                    <div className="absolute inset-0 bg-blue-500/20 rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
+                    {/* 核心星球及轨道包装 (居中保持) */}
+                    <div className="absolute left-0 top-0 bottom-0 w-8 flex items-center justify-center shrink-0">
+                      {/* 核心星球 */}
+                      <div className="relative z-10 w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-blue-400 to-indigo-500 shadow-sm group-hover:scale-125 transition-transform duration-300"></div>
+                      
+                      {/* 轨道环 - 移除无限旋转动画以优化性能 */}
+                      <svg className="absolute w-6 h-6 text-blue-400/40 group-hover:text-blue-300/60 transition-colors duration-300 group-hover:rotate-12" viewBox="0 0 100 100">
+                        <ellipse cx="50" cy="50" rx="40" ry="15" fill="none" stroke="currentColor" strokeWidth="1.5" transform="rotate(-30 50 50)" />
+                        <ellipse cx="50" cy="50" rx="40" ry="15" fill="none" stroke="currentColor" strokeWidth="1.5" transform="rotate(30 50 50)" />
+                      </svg>
+                      
+                      {/* 卫星点 - 移除无限跳动动画 */}
+                      <div className="absolute w-[2px] h-[2px] bg-blue-200 rounded-full group-hover:bg-white transition-all duration-300 group-hover:translate-x-1" style={{ top: '8px', left: '22px' }}></div>
+                    </div>
+
+                    {/* 文字内容 */}
+                    <div className="relative z-10 flex items-center justify-start pl-6 pr-1 whitespace-nowrap w-full">
+                      <span className="text-[11px] font-bold text-blue-100 tracking-wider flex items-center group-hover:text-white transition-colors duration-300">
+                        <span className="absolute left-7 group-hover:opacity-0 group-hover:-translate-y-2 transition-all duration-300">宇宙</span>
+                        <span className="opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 delay-75 flex items-center">
+                          查看AI资讯宇宙
+                          <ChevronRight size={12} className="group-hover:translate-x-0.5 transition-transform duration-300 ml-0.5" />
+                        </span>
+                      </span>
+                    </div>
+                  </button>
                 </div>
                 
                 <div className="flex items-center gap-3 relative" ref={filterRef}>
-                  <div className="relative group">
-                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                    <input 
-                      type="text" 
-                      placeholder="搜索行业动态..." 
-                      className="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-full text-sm w-48 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400"
-                    />
-                  </div>
                   <button 
                     onClick={() => setIsFilterOpen(!isFilterOpen)}
                     className={`flex items-center gap-2 px-4 py-2 border rounded-full text-sm font-medium transition-colors ${
@@ -639,12 +778,13 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                     >
                       <span 
                         className={`font-bold transition-all duration-300 inline-block px-1
-                          ${isHovered ? 'scale-125 drop-shadow-lg z-20' : ''} 
+                          ${isHovered ? 'scale-125 drop-shadow-md z-20' : ''} 
                           ${isFaded ? 'opacity-20 blur-[2px]' : 'opacity-90'}
                         `}
                         style={{ 
                           fontSize: `${fontSize}px`,
                           color: word.color,
+                          willChange: 'transform, opacity',
                           textShadow: isHovered ? `0 0 12px ${word.color}80` : 'none'
                         }}
                       >
@@ -679,54 +819,30 @@ export function ClassicDashboard({ onNavigateTo3D }) {
             </div>
           </div>
 
-          {/* Bar Chart Replaced with Data List */}
+          {/* Shaanxi AI Dynamics */}
           <div className="bg-white rounded-xl shadow-sm p-5 border border-slate-100 flex-1 flex flex-col min-h-0 h-[40%]">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center text-blue-600">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                </svg>
+                <Zap size={14} className="fill-blue-500/20" />
               </div>
-              <h2 className="font-bold text-slate-800 text-lg">各部门智能体数据一览</h2>
+              <h2 className="font-bold text-slate-800 text-lg tracking-tight">陕西公司AI动态先知</h2>
             </div>
             
-            <div className="mb-4 text-xs font-medium text-slate-500 flex justify-between px-2">
-              <span>部门名称</span>
-              <div className="flex gap-8">
-                <span>总数</span>
-                <span>调用量</span>
-              </div>
-            </div>
-            
-            <div className="flex-1 flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar">
-              {[
-                { name: '数智化部', total: 124, calls: '45.2k', progress: 85 },
-                { name: '工程建设部', total: 98, calls: '32.1k', progress: 70 },
-                { name: '内审部', total: 86, calls: '28.5k', progress: 62 },
-                { name: '网络部', total: 65, calls: '19.8k', progress: 48 },
-                { name: '品质管理部', total: 42, calls: '12.4k', progress: 35 },
-                { name: '政企客户部', total: 38, calls: '9.2k', progress: 28 },
-                { name: '市场经营部', total: 24, calls: '5.6k', progress: 15 },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-2 rounded hover:bg-slate-50 transition-colors group">
-                  <div className="flex items-center gap-3 w-1/2">
-                    <span className="text-xs font-bold text-slate-400 w-4">{i + 1}</span>
-                    <span className="text-sm font-medium text-slate-700 truncate">{item.name}</span>
+            <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-2 custom-scrollbar">
+              {mockDynamics.map((item, i) => (
+                <div 
+                  key={i} 
+                  className="flex gap-3 p-2.5 rounded-xl border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all duration-300 group cursor-pointer"
+                  onClick={() => setSelectedDynamic(item)}
+                >
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 flex flex-col items-center justify-center shrink-0 border border-slate-200/50 group-hover:from-blue-100 group-hover:to-blue-200 transition-colors">
+                    <span className="text-[10px] font-bold text-slate-400 group-hover:text-blue-500">{item.date.split('.')[1]}/{item.date.split('.')[2]}</span>
                   </div>
-                  
-                  <div className="flex items-center gap-8 text-sm w-1/2 justify-end">
-                    <div className="flex flex-col items-end w-12">
-                      <span className="font-bold text-blue-600">{item.total}</span>
-                    </div>
-                    <div className="flex flex-col items-end w-16">
-                      <span className="font-bold text-emerald-500">{item.calls}</span>
-                      <div className="w-full bg-slate-100 h-1.5 rounded-full mt-1 overflow-hidden">
-                        <div 
-                          className="h-full bg-emerald-400 rounded-full transition-all duration-1000 ease-out" 
-                          style={{ width: `${item.progress}%` }}
-                        ></div>
-                      </div>
-                    </div>
+                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                    <span className="text-[9px] font-bold text-blue-500 mb-0.5 tracking-wider uppercase">{item.category}</span>
+                    <h3 className="text-xs font-bold text-slate-800 line-clamp-2 leading-snug group-hover:text-blue-700 transition-colors">
+                      {item.title}
+                    </h3>
                   </div>
                 </div>
               ))}

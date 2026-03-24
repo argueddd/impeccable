@@ -58,7 +58,7 @@ export function HotTrendsSidebar({ activeNode, onNodeClick, timeRange, sortType 
               <h3 className="font-black text-slate-800 text-sm flex items-center gap-2 tracking-widest uppercase ml-2">
                 <Activity size={16} className="text-orange-500" />
                 {sortType === 'speed' ? '飙升趋势榜' : '全局热度榜'}
-                <span className="text-[10px] font-normal text-slate-400 bg-slate-200/50 px-2 py-0.5 rounded-full ml-1">
+                <span className="text-[10px] font-normal text-slate-500 bg-slate-200/50 px-2 py-0.5 rounded-full ml-1">
                   TOP 25
                 </span>
               </h3>
@@ -111,7 +111,7 @@ export function HotTrendsSidebar({ activeNode, onNodeClick, timeRange, sortType 
                             )}
                           </div>
                           <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                            <span className={`text-[10px] font-mono ${node.changeRate > 10 ? 'text-red-500 font-bold' : 'text-slate-400'}`}>
+                            <span className={`text-[10px] font-mono ${node.changeRate > 10 ? 'text-red-500 font-bold' : 'text-slate-500'}`}>
                               +{node.changeRate}%
                             </span>
                             {getStatusIcon(node.status, node.isNew)}

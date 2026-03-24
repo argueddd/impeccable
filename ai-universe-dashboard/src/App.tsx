@@ -2,7 +2,7 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, useCursor } from '@react-three/drei';
 import * as THREE from 'three';
-import { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DATA_NODES, CATEGORIES } from './data';
 import { NodeLabel } from './components/NodeLabel';
@@ -14,6 +14,8 @@ import { HeatmapScene } from './components/HeatmapScene';
 import { HeatmapControlBar } from './components/HeatmapControlBar';
 import { HotTrendsSidebar } from './components/HotTrendsSidebar';
 import { ClassicDashboard } from './components/ClassicDashboard';
+
+import { LightUniverseBackground } from './components/LightUniverseBackground';
 
 // --- 3D Scene Components ---
 
@@ -405,12 +407,7 @@ function App() {
     <div className="w-full h-screen bg-slate-50 relative overflow-hidden font-sans text-slate-900">
       
       {/* Background Decorators */}
-      <div className="absolute inset-0 bg-tech-grid pointer-events-none z-0"></div>
-      <div className="absolute inset-0 bg-vignette pointer-events-none z-0"></div>
-      
-      {/* Decorative ambient glows in corners */}
-      <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-400/5 blur-[120px] pointer-events-none z-0"></div>
-      <div className="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-purple-400/5 blur-[120px] pointer-events-none z-0"></div>
+      <LightUniverseBackground />
 
       {/* Header Overlay */}
       <header className="absolute top-0 left-0 w-full p-8 flex justify-between items-center z-20 pointer-events-none">
@@ -420,9 +417,9 @@ function App() {
           </div>
           <div>
             <h1 className="text-xl font-bold tracking-tight text-slate-900">
-              陕西移动数智化部 <span className="text-slate-400 font-normal">| AI Universe</span>
+              陕西移动数智化部 <span className="text-slate-500 font-normal">| AI Universe</span>
             </h1>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-widest">全网 AI 技术演进与舆情监测枢纽</p>
+            <p className="text-xs font-medium text-slate-600 uppercase tracking-widest">全网 AI 技术演进与舆情监测枢纽</p>
           </div>
         </div>
         
@@ -504,7 +501,7 @@ function App() {
               className="absolute inset-0 w-full h-full pointer-events-auto"
             >
               <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 300], fov: 60 }} style={{ width: '100vw', height: '100vh', display: 'block' }}>
-                <fog attach="fog" args={['#0f172a', 300, 1000]} />
+                <fog attach="fog" args={['#f8fafc', 300, 1000]} />
                 <HeatmapScene 
                   onNodeClick={handleNodeClick} 
                   activeNode={activeNode} 

@@ -107,8 +107,8 @@ export function Sidebar({ activeNode, onNodeClick }) {
             className="fixed right-0 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-md border border-slate-200 border-r-0 rounded-l-xl p-2 shadow-[-5px_0_15px_rgba(0,0,0,0.05)] z-30 hover:pr-4 hover:bg-slate-50 transition-all group pointer-events-auto"
           >
             <div className="flex flex-col items-center gap-2">
-              <ChevronLeft size={20} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
-              <span className="writing-vertical-rl text-[10px] font-bold text-slate-400 tracking-widest uppercase group-hover:text-indigo-500 transition-colors">
+              <ChevronLeft size={20} className="text-slate-500 group-hover:text-indigo-600 transition-colors" />
+              <span className="writing-vertical-rl text-[10px] font-bold text-slate-500 tracking-widest uppercase group-hover:text-indigo-600 transition-colors">
                 Taxonomy
               </span>
             </div>
