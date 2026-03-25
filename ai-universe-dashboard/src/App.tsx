@@ -4,7 +4,7 @@ import { OrbitControls, useCursor } from '@react-three/drei';
 import * as THREE from 'three';
 import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { DATA_NODES, CATEGORIES } from './data';
+import { DATA_NODES, CATEGORIES, HEATMAP_DATA, getKeywordDetails } from './data';
 import { NodeLabel } from './components/NodeLabel';
 import { DetailPanel } from './components/DetailPanel';
 import { Sidebar } from './components/Sidebar';
@@ -384,6 +384,31 @@ function App() {
   const handleNodeClick = (node) => {
     setActiveNode(node);
   };
+
+  // Listen for custom event from word cloud to select node
+  useEffect(() => {
+    const handleWordCloudSelect = (e) => {
+      const keyword = e.detail.keyword;
+      // Navigate to heatmap view
+      setViewMode('heatmap');
+      
+      // Find the corresponding node in HEATMAP_DATA
+      const node = HEATMAP_DATA.keywords.find(k => k.keyword === keyword);
+      if (node) {
+        // Set it as active node to open the detail panel
+        setActiveNode(getKeywordDetails(node));
+      } else {
+        // Fallback: search in DATA_NODES if not found in heatmap
+        const graphNode = DATA_NODES.find(n => n.title === keyword);
+        if (graphNode) setActiveNode(graphNode);
+      }
+    };
+
+    window.addEventListener('select-wordcloud-node', handleWordCloudSelect);
+    return () => {
+      window.removeEventListener('select-wordcloud-node', handleWordCloudSelect);
+    };
+  }, []);
 
   // If in classic dashboard mode, render it completely separate from the 3D setup
   if (viewMode === 'dashboard') {

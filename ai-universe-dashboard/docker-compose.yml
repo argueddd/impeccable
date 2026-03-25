@@ -1,0 +1,16 @@
+services:
+  ai-universe-dashboard:
+    image: ai-universe-dashboard
+    container_name: ai-universe-dashboard-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8080:80"
+    networks:
+      - proxy-tier
+
+networks:
+  proxy-tier:
+    external: true
