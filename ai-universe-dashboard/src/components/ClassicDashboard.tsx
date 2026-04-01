@@ -296,11 +296,11 @@ const MOCK_NEWS_ALL = [
 ];
 
 export function ClassicDashboard({ onNavigateTo3D }) {
-  const [selectedFilters, setSelectedFilters] = useState([]);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [displayCount, setDisplayCount] = useState(5);
   const [selectedArticle, setSelectedArticle] = useState(null);
-  const [selectedAgent, setSelectedAgent] = useState(null);
+  const [selectedAgent, setSelectedAgent] = useState(mockBenchmarkAgents[1]);
   const [selectedDynamic, setSelectedDynamic] = useState(null);
   const [isWordCloudPaused, setIsWordCloudPaused] = useState(false);
   const [hoveredWord, setHoveredWord] = useState(null);
@@ -675,7 +675,7 @@ export function ClassicDashboard({ onNavigateTo3D }) {
           </div>
         </div>
 
-        {/* Center Column (6 cols) - Product Interaction Area */}
+          {/* Center Column (6 cols) - Product Interaction Area */}
         <div className="col-span-6 flex flex-col gap-6 overflow-hidden h-full">
           {/* Main Feed */}
           <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 flex flex-col overflow-hidden relative">
@@ -684,13 +684,13 @@ export function ClassicDashboard({ onNavigateTo3D }) {
             <div className="p-6 shrink-0 border-b border-slate-100 bg-gradient-to-b from-blue-50/50 to-white">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-blue-500/20">
-                  {selectedAgent.icon}
+                  {selectedAgent?.icon || '🤖'}
                 </div>
                 <div>
                   <h2 className="font-bold text-slate-800 text-xl tracking-tight mb-1 flex items-center gap-2">
-                    {selectedAgent.name}
+                    {selectedAgent?.name || '秦小助'}
                   </h2>
-                  <p className="text-xs text-slate-500 font-medium">{selectedAgent.desc}</p>
+                  <p className="text-xs text-slate-500 font-medium">{selectedAgent?.desc || '您的全能办公与生活智能助理'}</p>
                 </div>
               </div>
             </div>
@@ -700,10 +700,10 @@ export function ClassicDashboard({ onNavigateTo3D }) {
               {/* Welcome Message */}
               <div className="flex gap-4 mb-6">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm shrink-0 mt-1 shadow-sm">
-                  🤖
+                  {selectedAgent?.icon || '🤖'}
                 </div>
                 <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-slate-100 shadow-sm text-sm text-slate-700 leading-relaxed max-w-[85%]">
-                  <p className="mb-2">您好！我是秦小助，很高兴为您服务。我可以帮您：</p>
+                  <p className="mb-2">您好！我是{selectedAgent?.name || '秦小助'}，很高兴为您服务。我可以帮您：</p>
                   <ul className="space-y-1.5 text-slate-600 mb-3">
                     <li className="flex items-center gap-2"><Zap size={12} className="text-amber-500" /> 快速预定会议室并发送邀请</li>
                     <li className="flex items-center gap-2"><Zap size={12} className="text-amber-500" /> 解答最新差旅报销标准与流程</li>
@@ -726,7 +726,7 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                     帮我预定明天下午两点的二楼会议室，需要有投影仪。
                   </button>
                   <button className="text-left p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
-                    去北京出张，住宿标准和餐补每天是多少？
+                    去北京出差，住宿标准和餐补每天是多少？
                   </button>
                   <button className="text-left p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
                     我的电脑连不上公司内网了，怎么办？
@@ -746,7 +746,7 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                 </button>
                 <input 
                   type="text" 
-                  placeholder={`与 ${selectedAgent.name} 交流，按 Enter 发送...`} 
+                  placeholder={`与 ${selectedAgent?.name || '秦小助'} 交流，按 Enter 发送...`} 
                   className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-full pl-12 pr-14 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                 />
                 <button className="absolute right-2 w-9 h-9 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5 transition-all">
@@ -803,7 +803,7 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                   <div className="group cursor-pointer">
                     <span className="text-[9px] text-slate-400 mb-1 block">2026-03-15</span>
                     <h4 className="text-xs font-bold text-slate-700 group-hover:text-blue-600 transition-colors line-clamp-1 mb-1">
-                      {selectedAgent.name} 荣获“年度最佳企业级AI应用”大奖
+                      {selectedAgent?.name || '秦小助'} 荣获“年度最佳企业级AI应用”大奖
                     </h4>
                     <p className="text-[10px] text-slate-500 line-clamp-2">在刚落幕的全国企业数智化转型峰会上，该智能体凭借出色的降本增效成果夺得桂冠。</p>
                   </div>
