@@ -510,7 +510,7 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                     <path d="M8 17v-3"/>
                   </svg>
                 </div>
-                <h2 className="font-bold text-slate-800 text-lg tracking-tight">全域智能体生态全景</h2>
+                <h2 className="font-bold text-slate-800 text-lg tracking-tight">各部门智能体数据一览</h2>
               </div>
               
               {/* Main Tabs */}
@@ -760,59 +760,54 @@ export function ClassicDashboard({ onNavigateTo3D }) {
           </div>
 
           {/* Bottom 1/3: Agent Features & News */}
-          <div className="flex gap-6 shrink-0 h-[30%]">
-            {/* Features Module */}
-            <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 p-5 flex flex-col relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-              <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2 relative z-10">
-                <Zap size={14} className="text-indigo-500" />
-                热点功能解析
-              </h3>
-              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 relative z-10">
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-800 mb-1">意图识别升级 (v2.4)</h4>
-                      <p className="text-[10px] text-slate-500 leading-relaxed">最新版本大幅提升了对方言口语和长难句的意图捕捉准确率，对话流畅度提升30%。</p>
-                    </div>
+          <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 shrink-0 h-[30%] p-5 flex flex-col relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2 relative z-10 shrink-0">
+              <Zap size={14} className="text-indigo-500" />
+              {selectedAgent?.name || '秦小助'} 相关动态与热点功能
+            </h3>
+            
+            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 relative z-10">
+              <div className="flex flex-col gap-4">
+                {/* News Item 1 */}
+                <div className="group cursor-pointer flex gap-3 p-3 rounded-lg border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-100 to-blue-100 flex items-center justify-center text-indigo-600 shrink-0">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors truncate">荣获“年度最佳企业级AI应用”大奖</h4>
+                      <span className="text-[10px] text-slate-400 shrink-0">2026-03-15</span>
                     </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-800 mb-1">跨应用数据打通</h4>
-                      <p className="text-[10px] text-slate-500 leading-relaxed">已无缝接入企业微信、OA审批及财务系统，实现“一句话”跨系统办理业务。</p>
-                    </div>
+                    <p className="text-xs text-slate-500 line-clamp-2">在刚落幕的全国企业数智化转型峰会上，该智能体凭借出色的降本增效成果夺得桂冠，成为全省标杆案例。</p>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Agent News Module */}
-            <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 p-5 flex flex-col relative overflow-hidden">
-              <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2 relative z-10">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 text-blue-500"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
-                相关动态与落地新闻
-              </h3>
-              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 relative z-10">
-                <div className="space-y-3">
-                  <div className="group cursor-pointer">
-                    <span className="text-[9px] text-slate-400 mb-1 block">2026-03-15</span>
-                    <h4 className="text-xs font-bold text-slate-700 group-hover:text-blue-600 transition-colors line-clamp-1 mb-1">
-                      {selectedAgent?.name || '秦小助'} 荣获“年度最佳企业级AI应用”大奖
-                    </h4>
-                    <p className="text-[10px] text-slate-500 line-clamp-2">在刚落幕的全国企业数智化转型峰会上，该智能体凭借出色的降本增效成果夺得桂冠。</p>
+                {/* Feature Item 1 */}
+                <div className="group cursor-pointer flex gap-3 p-3 rounded-lg border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center text-emerald-600 shrink-0">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                   </div>
-                  <div className="group cursor-pointer pt-3 border-t border-slate-100">
-                    <span className="text-[9px] text-slate-400 mb-1 block">2026-03-10</span>
-                    <h4 className="text-xs font-bold text-slate-700 group-hover:text-blue-600 transition-colors line-clamp-1 mb-1">
-                      全省推广：新增覆盖 5000+ 一线员工
-                    </h4>
-                    <p className="text-[10px] text-slate-500 line-clamp-2">二期推广计划顺利完成，目前日均活跃调用量已突破 5 万次，有效降低了基层人工工作量。</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors truncate">意图识别引擎重磅升级 (v2.4)</h4>
+                      <span className="text-[10px] text-slate-400 shrink-0">2026-03-12</span>
+                    </div>
+                    <p className="text-xs text-slate-500 line-clamp-2">最新版本大幅提升了对方言口语和长难句的意图捕捉准确率，系统对话流畅度整体提升30%，错误率降低至2%以下。</p>
+                  </div>
+                </div>
+
+                {/* News Item 2 */}
+                <div className="group cursor-pointer flex gap-3 p-3 rounded-lg border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center text-amber-600 shrink-0">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors truncate">跨应用数据打通，实现“一句话”审批</h4>
+                      <span className="text-[10px] text-slate-400 shrink-0">2026-03-05</span>
+                    </div>
+                    <p className="text-xs text-slate-500 line-clamp-2">已无缝接入企业微信、OA审批及财务系统，员工只需通过自然语言即可完成跨系统的复杂业务流转与审批办理。</p>
                   </div>
                 </div>
               </div>
@@ -823,7 +818,7 @@ export function ClassicDashboard({ onNavigateTo3D }) {
         {/* Right Column (3 cols) - Merged News & Word Cloud */}
         <div className="col-span-3 flex flex-col gap-6 overflow-hidden h-full">
           {/* Main Feed */}
-          <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 flex flex-col overflow-hidden">
+          <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 flex flex-col overflow-hidden min-h-0 h-[60%]">
             <div className="p-4 shrink-0 border-b border-slate-100">
               <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
