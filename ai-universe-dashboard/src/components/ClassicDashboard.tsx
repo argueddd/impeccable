@@ -420,7 +420,7 @@ export function ClassicDashboard({ onNavigateTo3D }) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 grid grid-cols-12 gap-6 overflow-hidden min-h-0">
+      <main className="flex-1 p-6 grid grid-cols-12 gap-6 overflow-hidden min-h-0 max-w-[1920px] mx-auto w-full">
         
         {/* Left Column (3 cols) */}
         <div className="col-span-3 flex flex-col gap-6 overflow-hidden h-full">
@@ -500,8 +500,8 @@ export function ClassicDashboard({ onNavigateTo3D }) {
 
           {/* Combined Agent Data Module */}
           <div className="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] p-5 border border-slate-100 flex-1 flex flex-col hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-shadow duration-300 min-h-0 shrink-0 h-[60%]">
-            <div className="flex flex-col gap-4 mb-5 shrink-0">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-3 mb-5 shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-blue-600 shadow-sm shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-bar-chart-3 text-blue-600">
                     <path d="M3 3v18h18"/>
@@ -510,11 +510,11 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                     <path d="M8 17v-3"/>
                   </svg>
                 </div>
-                <h2 className="font-bold text-slate-800 text-lg tracking-tight">智能体建设状况概览</h2>
+                <h2 className="font-bold text-slate-800 text-lg tracking-tight whitespace-nowrap">智能体建设状况概览</h2>
               </div>
               
               {/* Main Tabs */}
-              <div className="flex items-center gap-1 bg-slate-100/50 p-1 rounded-lg">
+              <div className="flex items-center gap-1 bg-slate-100/50 p-1 rounded-lg shrink-0 self-start w-full">
                 <button
                   onClick={() => setActiveTab('ranking')}
                   className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all duration-300 ${
@@ -545,11 +545,11 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                     transition={{ duration: 0.2 }}
                     className="absolute inset-0 flex flex-col"
                   >
-                    <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-2 custom-scrollbar">
+                    <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-2 custom-scrollbar content-start">
                       {mockAgents.map((agent, index) => (
                         <div 
                           key={agent.id} 
-                          className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors group cursor-pointer border border-transparent hover:border-slate-100"
+                          className="flex items-center justify-between p-2.5 rounded-lg hover:bg-slate-50 transition-colors group cursor-pointer border border-transparent hover:border-slate-100 bg-white"
                           onClick={() => setSelectedAgent(agent)}
                         >
                           <div className="flex items-center gap-3 min-w-0">
@@ -588,9 +588,6 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                         </div>
                       ))}
                     </div>
-                    <button className="mt-3 pt-3 border-t border-slate-100 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors flex items-center justify-center gap-1 w-full shrink-0">
-                      查看完整榜单 <ChevronRight size={14} />
-                    </button>
                   </motion.div>
                 ) : (
                   <motion.div
@@ -675,8 +672,8 @@ export function ClassicDashboard({ onNavigateTo3D }) {
           </div>
         </div>
 
-          {/* Center Column (6 cols) - Product Interaction Area */}
-        <div className="col-span-6 flex flex-col gap-6 overflow-hidden h-full">
+          {/* Center Column (5 cols) - Product Interaction Area */}
+        <div className="col-span-5 flex flex-col gap-6 overflow-hidden h-full">
           {/* Main Feed */}
           <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 flex flex-col overflow-hidden relative">
             
@@ -696,42 +693,42 @@ export function ClassicDashboard({ onNavigateTo3D }) {
             </div>
 
             {/* Conversation Area */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-5 bg-slate-50/50 flex flex-col">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-slate-50/50 flex flex-col">
               {/* Welcome Message */}
-              <div className="flex gap-4 mb-4">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm shrink-0 mt-1 shadow-sm">
+              <div className="flex gap-4 mb-6">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-base shrink-0 mt-1 shadow-sm">
                   {selectedAgent?.icon || '🤖'}
                 </div>
-                <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-slate-100 shadow-sm text-sm text-slate-700 leading-relaxed max-w-[85%]">
-                  <p className="mb-2">您好！我是{selectedAgent?.name || '秦小助'}，很高兴为您服务。我可以帮您：</p>
-                  <ul className="space-y-1.5 text-slate-600 mb-3">
-                    <li className="flex items-center gap-2"><Zap size={12} className="text-amber-500" /> 快速预定会议室并发送邀请</li>
-                    <li className="flex items-center gap-2"><Zap size={12} className="text-amber-500" /> 解答最新差旅报销标准与流程</li>
-                    <li className="flex items-center gap-2"><Zap size={12} className="text-amber-500" /> 协助处理 IT 设备故障报修</li>
+                <div className="bg-white p-5 rounded-2xl rounded-tl-sm border border-slate-100 shadow-sm text-sm text-slate-700 leading-relaxed max-w-[85%]">
+                  <p className="mb-3">您好！我是{selectedAgent?.name || '秦小助'}，很高兴为您服务。我可以帮您：</p>
+                  <ul className="space-y-2 text-slate-600 mb-4">
+                    <li className="flex items-center gap-2"><Zap size={14} className="text-amber-500" /> 快速预定会议室并发送邀请</li>
+                    <li className="flex items-center gap-2"><Zap size={14} className="text-amber-500" /> 解答最新差旅报销标准与流程</li>
+                    <li className="flex items-center gap-2"><Zap size={14} className="text-amber-500" /> 协助处理 IT 设备故障报修</li>
                   </ul>
                   <p>今天有什么我可以帮您的吗？</p>
                 </div>
               </div>
 
               {/* Recommended Questions */}
-              <div className="mt-auto pt-2">
-                <div className="flex items-center gap-2 mb-3 px-1">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 text-slate-400">
+              <div className="mt-auto pt-4">
+                <div className="flex items-center gap-2 mb-4 px-1">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-slate-400">
                     <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                   </svg>
-                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">您可以这样问我</span>
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">您可以这样问我</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button className="text-left p-2.5 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
+                <div className="grid grid-cols-2 gap-3">
+                  <button className="text-left p-3.5 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-sm text-slate-600">
                     帮我预定明天下午两点的二楼会议室，需要有投影仪。
                   </button>
-                  <button className="text-left p-2.5 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
+                  <button className="text-left p-3.5 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-sm text-slate-600">
                     去北京出差，住宿标准和餐补每天是多少？
                   </button>
-                  <button className="text-left p-2.5 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
+                  <button className="text-left p-3.5 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-sm text-slate-600">
                     我的电脑连不上公司内网了，怎么办？
                   </button>
-                  <button className="text-left p-2.5 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
+                  <button className="text-left p-3.5 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-sm text-slate-600">
                     查询一下今天食堂中午的菜单。
                   </button>
                 </div>
@@ -768,46 +765,46 @@ export function ClassicDashboard({ onNavigateTo3D }) {
             </h3>
             
             <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 relative z-10">
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2.5">
                 {/* News Item 1 */}
-                <div className="group cursor-pointer flex gap-3 p-3 rounded-lg border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-100 to-blue-100 flex items-center justify-center text-indigo-600 shrink-0">
+                <div className="group cursor-pointer flex gap-3 p-2.5 rounded-lg border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-blue-100 flex items-center justify-center text-indigo-600 shrink-0 shadow-sm">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-1.5">
                       <h4 className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors truncate">荣获“年度最佳企业级AI应用”大奖</h4>
                       <span className="text-[10px] text-slate-400 shrink-0">2026-03-15</span>
                     </div>
-                    <p className="text-xs text-slate-500 line-clamp-2">在刚落幕的全国企业数智化转型峰会上，该智能体凭借出色的降本增效成果夺得桂冠，成为全省标杆案例。</p>
+                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">在刚落幕的全国企业数智化转型峰会上，该智能体凭借出色的降本增效成果夺得桂冠，成为全省标杆案例。</p>
                   </div>
                 </div>
 
                 {/* Feature Item 1 */}
-                <div className="group cursor-pointer flex gap-3 p-3 rounded-lg border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center text-emerald-600 shrink-0">
+                <div className="group cursor-pointer flex gap-3 p-2.5 rounded-lg border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-blue-100 flex items-center justify-center text-indigo-600 shrink-0 shadow-sm">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-1.5">
                       <h4 className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors truncate">意图识别引擎重磅升级 (v2.4)</h4>
                       <span className="text-[10px] text-slate-400 shrink-0">2026-03-12</span>
                     </div>
-                    <p className="text-xs text-slate-500 line-clamp-2">最新版本大幅提升了对方言口语和长难句的意图捕捉准确率，系统对话流畅度整体提升30%，错误率降低至2%以下。</p>
+                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">最新版本大幅提升了对方言口语和长难句的意图捕捉准确率，系统对话流畅度整体提升30%，错误率降低至2%以下。</p>
                   </div>
                 </div>
 
                 {/* News Item 2 */}
-                <div className="group cursor-pointer flex gap-3 p-3 rounded-lg border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center text-amber-600 shrink-0">
+                <div className="group cursor-pointer flex gap-3 p-2.5 rounded-lg border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-blue-100 flex items-center justify-center text-indigo-600 shrink-0 shadow-sm">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-1.5">
                       <h4 className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors truncate">跨应用数据打通，实现“一句话”审批</h4>
                       <span className="text-[10px] text-slate-400 shrink-0">2026-03-05</span>
                     </div>
-                    <p className="text-xs text-slate-500 line-clamp-2">已无缝接入企业微信、OA审批及财务系统，员工只需通过自然语言即可完成跨系统的复杂业务流转与审批办理。</p>
+                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">已无缝接入企业微信、OA审批及财务系统，员工只需通过自然语言即可完成跨系统的复杂业务流转与审批办理。</p>
                   </div>
                 </div>
               </div>
@@ -815,23 +812,68 @@ export function ClassicDashboard({ onNavigateTo3D }) {
           </div>
         </div>
 
-        {/* Right Column (3 cols) - Merged News & Word Cloud */}
-        <div className="col-span-3 flex flex-col gap-6 overflow-hidden h-full">
+        {/* Right Column (4 cols) - Merged News & Word Cloud */}
+        <div className="col-span-4 flex flex-col gap-6 overflow-hidden h-full">
           {/* Main Feed */}
-          <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 flex flex-col overflow-hidden min-h-0 h-[60%] shrink-0">
-            <div className="p-4 shrink-0 border-b border-slate-100">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
-                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-                      </svg>
-                    </div>
-                    <h2 className="font-bold text-slate-800 text-base tracking-tight">前沿资讯</h2>
+          <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 flex flex-col overflow-hidden min-h-0 h-[70%] shrink-0">
+            <div className="p-3.5 shrink-0 border-b border-slate-100 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                  </svg>
+                </div>
+                <h2 className="font-bold text-slate-800 text-base tracking-tight">前沿资讯</h2>
+              </div>
+              
+              <div className="flex items-center gap-2 relative z-10">
+                {/* Rotating Word Cloud Button */}
+                <button 
+                  onClick={() => {
+                    onNavigateTo3D();
+                    const event = new CustomEvent('select-wordcloud-node', { detail: { keyword: wordCloudData[currentWordIndex].text } });
+                    window.dispatchEvent(event);
+                  }}
+                  className="group relative flex items-center h-7 px-3 rounded-full bg-white shadow-sm border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-300 shrink-0"
+                  title="点击探索该热词"
+                >
+                  <div className="flex items-center gap-1.5 z-10 relative">
+                    <span className="text-[10px] font-medium text-slate-400">热词</span>
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={currentWordIndex}
+                        initial={{ y: 8, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -8, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="text-xs font-bold whitespace-nowrap"
+                        style={{ color: wordCloudData[currentWordIndex].color }}
+                      >
+                        {wordCloudData[currentWordIndex].text}
+                      </motion.span>
+                    </AnimatePresence>
+                    <Zap size={10} className="text-amber-400 ml-0.5" />
                   </div>
-                  
-                  {/* Filter Icon Button */}
+                </button>
+
+                {/* 3D Universe Navigation Button */}
+                <button 
+                  onClick={onNavigateTo3D}
+                  className="group relative flex items-center justify-center h-7 px-3 rounded-full bg-slate-900 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-500 border border-blue-500/30 hover:border-blue-400/80 overflow-hidden shrink-0"
+                  title="查看AI资讯宇宙"
+                >
+                  <div className="absolute inset-0 bg-blue-500/20 opacity-50 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative z-10 flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-gradient-to-tr from-blue-400 to-indigo-500 shadow-sm group-hover:scale-125 transition-transform duration-300"></div>
+                    <span className="text-[10px] font-bold text-blue-100 group-hover:text-white transition-colors duration-300 flex items-center">
+                      资讯宇宙
+                      <ChevronRight size={10} className="group-hover:translate-x-0.5 transition-transform duration-300 ml-0.5" />
+                    </span>
+                  </div>
+                </button>
+
+                {/* Filter Icon Button */}
+                <div className="relative" ref={filterRef}>
                   <button 
                     onClick={() => setIsFilterOpen(!isFilterOpen)}
                     className={`flex items-center justify-center w-7 h-7 rounded-full transition-colors ${
@@ -842,56 +884,7 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                   >
                     <Filter size={12} />
                   </button>
-                </div>
 
-                <div className="flex items-center gap-2 relative z-10 w-full overflow-x-auto hide-scrollbar pb-1">
-                  {/* Rotating Word Cloud Button */}
-                  <button 
-                    onClick={() => {
-                      onNavigateTo3D();
-                      const event = new CustomEvent('select-wordcloud-node', { detail: { keyword: wordCloudData[currentWordIndex].text } });
-                      window.dispatchEvent(event);
-                    }}
-                    className="group relative flex items-center h-7 px-3 rounded-full bg-white shadow-sm border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-300 shrink-0"
-                    title="点击探索该热词"
-                  >
-                    <div className="flex items-center gap-1.5 z-10 relative">
-                      <span className="text-[9px] font-medium text-slate-400">热词</span>
-                      <AnimatePresence mode="wait">
-                        <motion.span
-                          key={currentWordIndex}
-                          initial={{ y: 8, opacity: 0 }}
-                          animate={{ y: 0, opacity: 1 }}
-                          exit={{ y: -8, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="text-[11px] font-bold whitespace-nowrap"
-                          style={{ color: wordCloudData[currentWordIndex].color }}
-                        >
-                          {wordCloudData[currentWordIndex].text}
-                        </motion.span>
-                      </AnimatePresence>
-                      <Zap size={10} className="text-amber-400 ml-0.5" />
-                    </div>
-                  </button>
-
-                  {/* 3D Universe Navigation Button */}
-                  <button 
-                    onClick={onNavigateTo3D}
-                    className="group relative flex items-center justify-center h-7 px-3 rounded-full bg-slate-900 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-500 border border-blue-500/30 hover:border-blue-400/80 overflow-hidden shrink-0"
-                    title="查看AI资讯宇宙"
-                  >
-                    <div className="absolute inset-0 bg-blue-500/20 opacity-50 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="relative z-10 flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-full bg-gradient-to-tr from-blue-400 to-indigo-500 shadow-sm group-hover:scale-125 transition-transform duration-300"></div>
-                      <span className="text-[10px] font-bold text-blue-100 group-hover:text-white transition-colors duration-300 flex items-center">
-                        资讯宇宙
-                        <ChevronRight size={10} className="group-hover:translate-x-0.5 transition-transform duration-300 ml-0.5" />
-                      </span>
-                    </div>
-                  </button>
-                </div>
-                
-                <div className="relative" ref={filterRef}>
                   {/* Filter Popover */}
                   <AnimatePresence>
                     {isFilterOpen && (
@@ -941,8 +934,8 @@ export function ClassicDashboard({ onNavigateTo3D }) {
             </div>
 
             {/* News List Container */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 bg-slate-50/30">
-              <div className="flex flex-col gap-4">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-3 bg-slate-50/30">
+              <div className="flex flex-col gap-2.5">
                 <AnimatePresence mode="popLayout">
                   {displayedNews.length > 0 ? displayedNews.map((news) => (
                     <motion.div 
@@ -952,10 +945,10 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.3 }}
                       key={news.id} 
-                      className="group p-4 rounded-xl border border-slate-100 bg-white hover:border-blue-100 hover:shadow-[0_4px_12px_rgba(0,102,204,0.08)] transition-all duration-300 cursor-pointer shrink-0"
+                      className="group p-3.5 rounded-xl border border-slate-100 bg-white hover:border-blue-100 hover:shadow-[0_4px_12px_rgba(0,102,204,0.08)] transition-all duration-300 cursor-pointer shrink-0"
                       onClick={() => setSelectedArticle(news)}
                     >
-                    <div className="flex flex-col gap-2 mb-3">
+                    <div className="flex flex-col gap-2 mb-2">
                       <div className="flex flex-wrap gap-1.5">
                         <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[9px] font-bold rounded-md border border-blue-100/50">
                           {news.level1}
@@ -969,7 +962,7 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                       </h3>
                     </div>
                     
-                    <div className="flex items-center justify-between text-[10px] text-slate-400 mt-3 pt-3 border-t border-slate-50">
+                    <div className="flex items-center justify-between text-[10px] text-slate-400 mt-2.5 pt-2.5 border-t border-slate-50">
                       <span className="flex items-center gap-1 font-medium text-slate-500 truncate">
                         <div className="w-3.5 h-3.5 rounded-full bg-slate-100 flex items-center justify-center text-[8px]">📰</div>
                         {news.source}
@@ -1000,6 +993,44 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                   加载更多
                 </button>
               )}
+            </div>
+          </div>
+
+          {/* AI Dynamics Module */}
+          <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 shrink-0 h-[30%] flex flex-col overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            
+            <div className="p-3 shrink-0 border-b border-slate-100 relative z-10 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-sm">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                  </svg>
+                </div>
+                <h2 className="font-bold text-slate-800 text-base tracking-tight">陕西公司AI动态先知</h2>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-3 bg-slate-50/30 relative z-10">
+              <div className="flex flex-col gap-2">
+                {mockDynamics.map((item, index) => (
+                  <div 
+                    key={index}
+                    onClick={() => setSelectedDynamic(item)}
+                    className="group flex flex-col gap-1.5 p-2.5 rounded-xl border border-slate-100 bg-white hover:border-indigo-100 hover:shadow-[0_4px_12px_rgba(79,70,229,0.08)] transition-all cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-[9px] font-bold rounded-md border border-indigo-100/50">
+                        {item.category}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-medium">{item.date}</span>
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-700 group-hover:text-indigo-600 transition-colors line-clamp-2 leading-snug">
+                      {item.title}
+                    </h4>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
