@@ -510,7 +510,7 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                     <path d="M8 17v-3"/>
                   </svg>
                 </div>
-                <h2 className="font-bold text-slate-800 text-lg tracking-tight">各部门智能体数据一览</h2>
+                <h2 className="font-bold text-slate-800 text-lg tracking-tight">智能体建设状况概览</h2>
               </div>
               
               {/* Main Tabs */}
@@ -681,7 +681,7 @@ export function ClassicDashboard({ onNavigateTo3D }) {
           <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 flex flex-col overflow-hidden relative">
             
             {/* Header Area */}
-            <div className="p-6 shrink-0 border-b border-slate-100 bg-gradient-to-b from-blue-50/50 to-white">
+            <div className="p-5 shrink-0 border-b border-slate-100 bg-gradient-to-b from-blue-50/50 to-white">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-blue-500/20">
                   {selectedAgent?.icon || '🤖'}
@@ -696,9 +696,9 @@ export function ClassicDashboard({ onNavigateTo3D }) {
             </div>
 
             {/* Conversation Area */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-slate-50/50 flex flex-col">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-5 bg-slate-50/50 flex flex-col">
               {/* Welcome Message */}
-              <div className="flex gap-4 mb-6">
+              <div className="flex gap-4 mb-4">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm shrink-0 mt-1 shadow-sm">
                   {selectedAgent?.icon || '🤖'}
                 </div>
@@ -714,24 +714,24 @@ export function ClassicDashboard({ onNavigateTo3D }) {
               </div>
 
               {/* Recommended Questions */}
-              <div className="mt-auto pt-4">
+              <div className="mt-auto pt-2">
                 <div className="flex items-center gap-2 mb-3 px-1">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 text-slate-400">
                     <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                   </svg>
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">您可以这样问我</span>
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">您可以这样问我</span>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <button className="text-left p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
+                <div className="grid grid-cols-2 gap-2">
+                  <button className="text-left p-2.5 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
                     帮我预定明天下午两点的二楼会议室，需要有投影仪。
                   </button>
-                  <button className="text-left p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
+                  <button className="text-left p-2.5 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
                     去北京出差，住宿标准和餐补每天是多少？
                   </button>
-                  <button className="text-left p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
+                  <button className="text-left p-2.5 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
                     我的电脑连不上公司内网了，怎么办？
                   </button>
-                  <button className="text-left p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
+                  <button className="text-left p-2.5 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
                     查询一下今天食堂中午的菜单。
                   </button>
                 </div>
@@ -818,7 +818,7 @@ export function ClassicDashboard({ onNavigateTo3D }) {
         {/* Right Column (3 cols) - Merged News & Word Cloud */}
         <div className="col-span-3 flex flex-col gap-6 overflow-hidden h-full">
           {/* Main Feed */}
-          <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 flex flex-col overflow-hidden min-h-0 h-[60%]">
+          <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 flex flex-col overflow-hidden min-h-0 h-[60%] shrink-0">
             <div className="p-4 shrink-0 border-b border-slate-100">
               <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
