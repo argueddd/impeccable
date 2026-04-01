@@ -481,7 +481,11 @@ export function ClassicDashboard({ onNavigateTo3D }) {
             <div className="relative bg-white/10 backdrop-blur-sm rounded-[11px] px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white shadow-inner">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 3.82-13.02 1 1 0 0 1 1.76.5 22.1 22.1 0 0 1 1.13 11.02"/><path d="M15 12l3 3a22 22 0 0 0 13.02-3.82 1 1 0 0 0-.5-1.76 22.1 22.1 0 0 0-11.02-1.13"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-rocket">
+                    <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+                    <path d="m12 15-3-3a22 22 0 0 1 3.82-13.02 1 1 0 0 1 1.76.5 22.1 22.1 0 0 1 1.13 11.02"/>
+                    <path d="M15 12l3 3a22 22 0 0 0 13.02-3.82 1 1 0 0 0-.5-1.76 22.1 22.1 0 0 0-11.02-1.13"/>
+                  </svg>
                 </div>
                 <div className="flex flex-col text-left">
                   <span className="text-white font-bold text-sm tracking-wide">开启我的 Agent 开发之旅</span>
@@ -499,9 +503,14 @@ export function ClassicDashboard({ onNavigateTo3D }) {
             <div className="flex flex-col gap-4 mb-5 shrink-0">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-blue-600 shadow-sm shrink-0">
-                  {activeTab === 'ranking' ? <Crown size={16} className="text-amber-600" /> : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg>}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-bar-chart-3 text-blue-600">
+                    <path d="M3 3v18h18"/>
+                    <path d="M18 17V9"/>
+                    <path d="M13 17V5"/>
+                    <path d="M8 17v-3"/>
+                  </svg>
                 </div>
-                <h2 className="font-bold text-slate-800 text-lg tracking-tight">智能体数据概览</h2>
+                <h2 className="font-bold text-slate-800 text-lg tracking-tight">全域智能体生态全景</h2>
               </div>
               
               {/* Main Tabs */}
@@ -675,14 +684,13 @@ export function ClassicDashboard({ onNavigateTo3D }) {
             <div className="p-6 shrink-0 border-b border-slate-100 bg-gradient-to-b from-blue-50/50 to-white">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-blue-500/20">
-                  🤖
+                  {selectedAgent.icon}
                 </div>
                 <div>
                   <h2 className="font-bold text-slate-800 text-xl tracking-tight mb-1 flex items-center gap-2">
-                    秦小助
-                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded uppercase tracking-wider">Beta</span>
+                    {selectedAgent.name}
                   </h2>
-                  <p className="text-xs text-slate-500 font-medium">您的全能办公与生活智能助理</p>
+                  <p className="text-xs text-slate-500 font-medium">{selectedAgent.desc}</p>
                 </div>
               </div>
             </div>
@@ -738,7 +746,7 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                 </button>
                 <input 
                   type="text" 
-                  placeholder="输入您的问题或需求，按 Enter 发送..." 
+                  placeholder={`与 ${selectedAgent.name} 交流，按 Enter 发送...`} 
                   className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-full pl-12 pr-14 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                 />
                 <button className="absolute right-2 w-9 h-9 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5 transition-all">
@@ -747,6 +755,66 @@ export function ClassicDashboard({ onNavigateTo3D }) {
               </div>
               <div className="text-center mt-3">
                 <span className="text-[10px] text-slate-400">AI 生成的内容可能存在误差，请以实际政策或人工核实为准。</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom 1/3: Agent Features & News */}
+          <div className="flex gap-6 shrink-0 h-[30%]">
+            {/* Features Module */}
+            <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 p-5 flex flex-col relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+              <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2 relative z-10">
+                <Zap size={14} className="text-indigo-500" />
+                热点功能解析
+              </h3>
+              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 relative z-10">
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-800 mb-1">意图识别升级 (v2.4)</h4>
+                      <p className="text-[10px] text-slate-500 leading-relaxed">最新版本大幅提升了对方言口语和长难句的意图捕捉准确率，对话流畅度提升30%。</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-800 mb-1">跨应用数据打通</h4>
+                      <p className="text-[10px] text-slate-500 leading-relaxed">已无缝接入企业微信、OA审批及财务系统，实现“一句话”跨系统办理业务。</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Agent News Module */}
+            <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 p-5 flex flex-col relative overflow-hidden">
+              <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2 relative z-10">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 text-blue-500"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+                相关动态与落地新闻
+              </h3>
+              <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 relative z-10">
+                <div className="space-y-3">
+                  <div className="group cursor-pointer">
+                    <span className="text-[9px] text-slate-400 mb-1 block">2026-03-15</span>
+                    <h4 className="text-xs font-bold text-slate-700 group-hover:text-blue-600 transition-colors line-clamp-1 mb-1">
+                      {selectedAgent.name} 荣获“年度最佳企业级AI应用”大奖
+                    </h4>
+                    <p className="text-[10px] text-slate-500 line-clamp-2">在刚落幕的全国企业数智化转型峰会上，该智能体凭借出色的降本增效成果夺得桂冠。</p>
+                  </div>
+                  <div className="group cursor-pointer pt-3 border-t border-slate-100">
+                    <span className="text-[9px] text-slate-400 mb-1 block">2026-03-10</span>
+                    <h4 className="text-xs font-bold text-slate-700 group-hover:text-blue-600 transition-colors line-clamp-1 mb-1">
+                      全省推广：新增覆盖 5000+ 一线员工
+                    </h4>
+                    <p className="text-[10px] text-slate-500 line-clamp-2">二期推广计划顺利完成，目前日均活跃调用量已突破 5 万次，有效降低了基层人工工作量。</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
