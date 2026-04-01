@@ -309,6 +309,23 @@ export function ClassicDashboard({ onNavigateTo3D }) {
   const filterRef = useRef(null);
 
   const [activeTab, setActiveTab] = useState('ranking'); // 'ranking' | 'department'
+  
+  // Word cloud rotating button state
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const wordCloudData = useMemo(() => [
+    { text: "智能体", heatScore: 100, changeRate: 18.2, color: "#ef4444" }, 
+    { text: "OpenClaw", heatScore: 96, changeRate: 24.5, color: "#f97316" }, 
+    { text: "具身智能", heatScore: 92, changeRate: 16.8, color: "#eab308" }, 
+    { text: "人形机器人", heatScore: 89, changeRate: 14.3, color: "#3b82f6" }, 
+    { text: "AI落地", heatScore: 86, changeRate: 11.7, color: "#8b5cf6" }
+  ], []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentWordIndex((prev) => (prev + 1) % wordCloudData.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [wordCloudData.length]);
 
   const cities = ['西安', '咸阳', '宝鸡', '渭南', '汉中', '延安', '榆林', '安康', '商洛', '铜川'];
 
@@ -432,24 +449,50 @@ export function ClassicDashboard({ onNavigateTo3D }) {
               {mockBenchmarkAgents.map((agent) => (
                 <div 
                   key={agent.id} 
-                  className="bg-slate-50 rounded-xl p-3 border border-slate-100 hover:border-indigo-200 hover:bg-white hover:shadow-md transition-all duration-300 group cursor-pointer flex flex-col justify-center text-center"
+                  className="bg-slate-50 rounded-xl p-3 border border-slate-100 hover:border-indigo-200 hover:bg-white hover:shadow-md transition-all duration-300 group cursor-pointer flex flex-col justify-center text-center relative overflow-hidden"
                   onClick={() => setSelectedAgent({
                     ...agent,
                     rank: '标杆',
                     medalColor: '#4f46e5' // Indigo color for benchmark agents
                   })}
                 >
-                  <div className="w-10 h-10 mx-auto rounded-full bg-white shadow-sm flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition-transform duration-300 border border-slate-100 group-hover:border-indigo-100">
+                  <div className="w-10 h-10 mx-auto rounded-full bg-white shadow-sm flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition-transform duration-300 border border-slate-100 group-hover:border-indigo-100 relative z-10">
                     {agent.icon}
                   </div>
-                  <h3 className="text-sm font-bold text-slate-800 mb-1 group-hover:text-indigo-600 transition-colors">{agent.name}</h3>
-                  <p className="text-[10px] text-slate-500 line-clamp-2 leading-tight px-1">
+                  <h3 className="text-sm font-bold text-slate-800 mb-1 group-hover:text-indigo-600 transition-colors relative z-10">
+                    {agent.name}
+                  </h3>
+                  <p className="text-[10px] text-slate-500 line-clamp-2 leading-tight px-1 mb-2 relative z-10">
                     {agent.desc}
                   </p>
+                  <div className="mt-auto pt-2 border-t border-slate-200/60 flex items-center justify-center gap-1.5 text-[9px] text-slate-400 group-hover:text-slate-500 transition-colors relative z-10">
+                    <span className="truncate">{agent.creator}</span>
+                    <span className="w-0.5 h-0.5 rounded-full bg-slate-300"></span>
+                    <span className="truncate font-medium">{agent.org}</span>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
+
+          {/* Call to Action Button */}
+          <button className="w-full shrink-0 group relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-[1px] shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative bg-white/10 backdrop-blur-sm rounded-[11px] px-4 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white shadow-inner">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 3.82-13.02 1 1 0 0 1 1.76.5 22.1 22.1 0 0 1 1.13 11.02"/><path d="M15 12l3 3a22 22 0 0 0 13.02-3.82 1 1 0 0 0-.5-1.76 22.1 22.1 0 0 0-11.02-1.13"/></svg>
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="text-white font-bold text-sm tracking-wide">开启我的 Agent 开发之旅</span>
+                  <span className="text-blue-100 text-[10px] font-medium opacity-80 group-hover:opacity-100 transition-opacity">零代码构建专属智能体平台</span>
+                </div>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform duration-300"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </div>
+            </div>
+          </button>
 
           {/* Combined Agent Data Module */}
           <div className="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.04)] p-5 border border-slate-100 flex-1 flex flex-col hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-shadow duration-300 min-h-0 shrink-0 h-[60%]">
@@ -623,75 +666,169 @@ export function ClassicDashboard({ onNavigateTo3D }) {
           </div>
         </div>
 
-        {/* Right Column (6 cols) */}
+        {/* Center Column (6 cols) - Product Interaction Area */}
         <div className="col-span-6 flex flex-col gap-6 overflow-hidden h-full">
           {/* Main Feed */}
+          <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 flex flex-col overflow-hidden relative">
+            
+            {/* Header Area */}
+            <div className="p-6 shrink-0 border-b border-slate-100 bg-gradient-to-b from-blue-50/50 to-white">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-blue-500/20">
+                  🤖
+                </div>
+                <div>
+                  <h2 className="font-bold text-slate-800 text-xl tracking-tight mb-1 flex items-center gap-2">
+                    秦小助
+                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded uppercase tracking-wider">Beta</span>
+                  </h2>
+                  <p className="text-xs text-slate-500 font-medium">您的全能办公与生活智能助理</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Conversation Area */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-slate-50/50 flex flex-col">
+              {/* Welcome Message */}
+              <div className="flex gap-4 mb-6">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm shrink-0 mt-1 shadow-sm">
+                  🤖
+                </div>
+                <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-slate-100 shadow-sm text-sm text-slate-700 leading-relaxed max-w-[85%]">
+                  <p className="mb-2">您好！我是秦小助，很高兴为您服务。我可以帮您：</p>
+                  <ul className="space-y-1.5 text-slate-600 mb-3">
+                    <li className="flex items-center gap-2"><Zap size={12} className="text-amber-500" /> 快速预定会议室并发送邀请</li>
+                    <li className="flex items-center gap-2"><Zap size={12} className="text-amber-500" /> 解答最新差旅报销标准与流程</li>
+                    <li className="flex items-center gap-2"><Zap size={12} className="text-amber-500" /> 协助处理 IT 设备故障报修</li>
+                  </ul>
+                  <p>今天有什么我可以帮您的吗？</p>
+                </div>
+              </div>
+
+              {/* Recommended Questions */}
+              <div className="mt-auto pt-4">
+                <div className="flex items-center gap-2 mb-3 px-1">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 text-slate-400">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                  </svg>
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">您可以这样问我</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <button className="text-left p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
+                    帮我预定明天下午两点的二楼会议室，需要有投影仪。
+                  </button>
+                  <button className="text-left p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
+                    去北京出张，住宿标准和餐补每天是多少？
+                  </button>
+                  <button className="text-left p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
+                    我的电脑连不上公司内网了，怎么办？
+                  </button>
+                  <button className="text-left p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md hover:text-blue-600 transition-all group text-xs text-slate-600">
+                    查询一下今天食堂中午的菜单。
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Input Area */}
+            <div className="p-4 bg-white border-t border-slate-100 shrink-0">
+              <div className="relative flex items-center">
+                <button className="absolute left-3 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                </button>
+                <input 
+                  type="text" 
+                  placeholder="输入您的问题或需求，按 Enter 发送..." 
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-full pl-12 pr-14 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                />
+                <button className="absolute right-2 w-9 h-9 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 ml-0.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                </button>
+              </div>
+              <div className="text-center mt-3">
+                <span className="text-[10px] text-slate-400">AI 生成的内容可能存在误差，请以实际政策或人工核实为准。</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column (3 cols) - Merged News & Word Cloud */}
+        <div className="col-span-3 flex flex-col gap-6 overflow-hidden h-full">
+          {/* Main Feed */}
           <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-100 flex-1 flex flex-col overflow-hidden">
-            <div className="p-6 shrink-0 border-b border-slate-100">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
-                      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-                    </svg>
+            <div className="p-4 shrink-0 border-b border-slate-100">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                      </svg>
+                    </div>
+                    <h2 className="font-bold text-slate-800 text-base tracking-tight">前沿资讯</h2>
                   </div>
-                  <h2 className="font-bold text-slate-800 text-xl tracking-tight">AI 前沿资讯与分析</h2>
                   
+                  {/* Filter Icon Button */}
+                  <button 
+                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                    className={`flex items-center justify-center w-7 h-7 rounded-full transition-colors ${
+                      selectedFilters.length > 0 
+                        ? 'bg-blue-50 text-blue-600' 
+                        : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Filter size={12} />
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2 relative z-10 w-full overflow-x-auto hide-scrollbar pb-1">
+                  {/* Rotating Word Cloud Button */}
+                  <button 
+                    onClick={() => {
+                      onNavigateTo3D();
+                      const event = new CustomEvent('select-wordcloud-node', { detail: { keyword: wordCloudData[currentWordIndex].text } });
+                      window.dispatchEvent(event);
+                    }}
+                    className="group relative flex items-center h-7 px-3 rounded-full bg-white shadow-sm border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-300 shrink-0"
+                    title="点击探索该热词"
+                  >
+                    <div className="flex items-center gap-1.5 z-10 relative">
+                      <span className="text-[9px] font-medium text-slate-400">热词</span>
+                      <AnimatePresence mode="wait">
+                        <motion.span
+                          key={currentWordIndex}
+                          initial={{ y: 8, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: -8, opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="text-[11px] font-bold whitespace-nowrap"
+                          style={{ color: wordCloudData[currentWordIndex].color }}
+                        >
+                          {wordCloudData[currentWordIndex].text}
+                        </motion.span>
+                      </AnimatePresence>
+                      <Zap size={10} className="text-amber-400 ml-0.5" />
+                    </div>
+                  </button>
+
+                  {/* 3D Universe Navigation Button */}
                   <button 
                     onClick={onNavigateTo3D}
-                    className="group relative flex items-center justify-center h-8 ml-3 rounded-full bg-slate-900 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] border border-blue-500/30 hover:border-blue-400/80 overflow-hidden cursor-pointer w-[68px] hover:w-[130px] shrink-0"
+                    className="group relative flex items-center justify-center h-7 px-3 rounded-full bg-slate-900 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-500 border border-blue-500/30 hover:border-blue-400/80 overflow-hidden shrink-0"
                     title="查看AI资讯宇宙"
-                    style={{ willChange: 'width, transform' }}
                   >
-                    {/* 呼吸发光背景 - 简化为不使用无限动画，仅使用透明度 */}
-                    <div className="absolute inset-0 bg-blue-500/20 rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    
-                    {/* 核心星球及轨道包装 (居中保持) */}
-                    <div className="absolute left-0 top-0 bottom-0 w-8 flex items-center justify-center shrink-0">
-                      {/* 核心星球 */}
-                      <div className="relative z-10 w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-blue-400 to-indigo-500 shadow-sm group-hover:scale-125 transition-transform duration-300"></div>
-                      
-                      {/* 轨道环 - 移除无限旋转动画以优化性能 */}
-                      <svg className="absolute w-6 h-6 text-blue-400/40 group-hover:text-blue-300/60 transition-colors duration-300 group-hover:rotate-12" viewBox="0 0 100 100">
-                        <ellipse cx="50" cy="50" rx="40" ry="15" fill="none" stroke="currentColor" strokeWidth="1.5" transform="rotate(-30 50 50)" />
-                        <ellipse cx="50" cy="50" rx="40" ry="15" fill="none" stroke="currentColor" strokeWidth="1.5" transform="rotate(30 50 50)" />
-                      </svg>
-                      
-                      {/* 卫星点 - 移除无限跳动动画 */}
-                      <div className="absolute w-[2px] h-[2px] bg-blue-200 rounded-full group-hover:bg-white transition-all duration-300 group-hover:translate-x-1" style={{ top: '8px', left: '22px' }}></div>
-                    </div>
-
-                    {/* 文字内容 */}
-                    <div className="relative z-10 flex items-center justify-start pl-6 pr-1 whitespace-nowrap w-full">
-                      <span className="text-[11px] font-bold text-blue-100 tracking-wider flex items-center group-hover:text-white transition-colors duration-300">
-                        <span className="absolute left-7 group-hover:opacity-0 group-hover:-translate-y-2 transition-all duration-300">宇宙</span>
-                        <span className="opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 delay-75 flex items-center">
-                          查看AI资讯宇宙
-                          <ChevronRight size={12} className="group-hover:translate-x-0.5 transition-transform duration-300 ml-0.5" />
-                        </span>
+                    <div className="absolute inset-0 bg-blue-500/20 opacity-50 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative z-10 flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-gradient-to-tr from-blue-400 to-indigo-500 shadow-sm group-hover:scale-125 transition-transform duration-300"></div>
+                      <span className="text-[10px] font-bold text-blue-100 group-hover:text-white transition-colors duration-300 flex items-center">
+                        资讯宇宙
+                        <ChevronRight size={10} className="group-hover:translate-x-0.5 transition-transform duration-300 ml-0.5" />
                       </span>
                     </div>
                   </button>
                 </div>
                 
-                <div className="flex items-center gap-3 relative" ref={filterRef}>
-                  <button 
-                    onClick={() => setIsFilterOpen(!isFilterOpen)}
-                    className={`flex items-center gap-2 px-4 py-2 border rounded-full text-sm font-medium transition-colors ${
-                      selectedFilters.length > 0 
-                        ? 'bg-blue-50 border-blue-200 text-blue-600' 
-                        : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                    }`}
-                  >
-                    <Filter size={14} />
-                    高级筛选
-                    {selectedFilters.length > 0 && (
-                      <span className="flex items-center justify-center bg-blue-600 text-white text-[10px] w-4 h-4 rounded-full ml-1">
-                        {selectedFilters.length}
-                      </span>
-                    )}
-                  </button>
-
+                <div className="relative" ref={filterRef}>
                   {/* Filter Popover */}
                   <AnimatePresence>
                     {isFilterOpen && (
@@ -700,7 +837,7 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-20"
+                        className="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-20"
                       >
                         <div className="p-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                           <span className="text-sm font-bold text-slate-700">选择分类</span>
@@ -741,8 +878,8 @@ export function ClassicDashboard({ onNavigateTo3D }) {
             </div>
 
             {/* News List Container */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-slate-50/30">
-              <div className="flex flex-col gap-6">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 bg-slate-50/30">
+              <div className="flex flex-col gap-4">
                 <AnimatePresence mode="popLayout">
                   {displayedNews.length > 0 ? displayedNews.map((news) => (
                     <motion.div 
@@ -752,58 +889,29 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.3 }}
                       key={news.id} 
-                      className="group p-5 rounded-xl border border-slate-100 bg-white hover:border-blue-100 hover:shadow-[0_4px_12px_rgba(0,102,204,0.08)] transition-all duration-300 cursor-pointer shrink-0"
+                      className="group p-4 rounded-xl border border-slate-100 bg-white hover:border-blue-100 hover:shadow-[0_4px_12px_rgba(0,102,204,0.08)] transition-all duration-300 cursor-pointer shrink-0"
                       onClick={() => setSelectedArticle(news)}
                     >
-                    <div className="flex items-start justify-between gap-4 mb-3">
-                      <h3 className="text-lg font-bold text-slate-800 group-hover:text-[#0066cc] transition-colors leading-snug">
-                        {news.title}
-                      </h3>
-                      <div className="shrink-0 flex gap-2">
-                        <span className="px-2.5 py-1 bg-blue-50 text-blue-600 text-[11px] font-bold rounded-md border border-blue-100/50">
+                    <div className="flex flex-col gap-2 mb-3">
+                      <div className="flex flex-wrap gap-1.5">
+                        <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[9px] font-bold rounded-md border border-blue-100/50">
                           {news.level1}
                         </span>
-                        <span className="px-2.5 py-1 bg-slate-50 text-slate-500 text-[11px] font-medium rounded-md border border-slate-100">
+                        <span className="px-2 py-0.5 bg-slate-50 text-slate-500 text-[9px] font-medium rounded-md border border-slate-100">
                           {news.level2}
                         </span>
                       </div>
+                      <h3 className="text-sm font-bold text-slate-800 group-hover:text-[#0066cc] transition-colors leading-snug line-clamp-2">
+                        {news.title}
+                      </h3>
                     </div>
                     
-                    <div className="relative pl-4 mb-4">
-                      <div className="absolute left-0 top-1 bottom-1 w-1 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full opacity-70"></div>
-                      <p className="text-sm text-slate-600 leading-relaxed line-clamp-2">
-                        {news.summary}
-                      </p>
-                    </div>
-                    
-                    <div className="flex flex-wrap items-center justify-between text-xs text-slate-400 pt-4 border-t border-slate-50 mt-4">
-                      <div className="flex items-center gap-4">
-                        <span className="flex items-center gap-1.5 font-medium text-slate-500">
-                          <div className="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center">📰</div>
-                          {news.source}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                          {news.time}
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); console.log('Download PDF'); }}
-                          className="flex items-center gap-1.5 text-[#0066cc] font-medium hover:bg-blue-100 bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
-                        >
-                          <Download size={14} />
-                          快筛PDF
-                        </button>
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); console.log('External Link'); }}
-                          className="flex items-center gap-1.5 text-slate-500 font-medium hover:text-slate-700 hover:bg-slate-100 bg-slate-50 px-3 py-1.5 rounded-lg transition-colors"
-                        >
-                          <ExternalLink size={14} />
-                          原文链接
-                        </button>
-                      </div>
+                    <div className="flex items-center justify-between text-[10px] text-slate-400 mt-3 pt-3 border-t border-slate-50">
+                      <span className="flex items-center gap-1 font-medium text-slate-500 truncate">
+                        <div className="w-3.5 h-3.5 rounded-full bg-slate-100 flex items-center justify-center text-[8px]">📰</div>
+                        {news.source}
+                      </span>
+                      <span className="shrink-0">{news.time.split(' ')[0]}</span>
                     </div>
                   </motion.div>
                   )) : (
@@ -812,10 +920,10 @@ export function ClassicDashboard({ onNavigateTo3D }) {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="flex flex-col items-center justify-center py-16 text-slate-400"
+                      className="flex flex-col items-center justify-center py-12 text-slate-400"
                     >
-                      <Filter size={48} className="mb-4 text-slate-200" strokeWidth={1} />
-                      <p>没有找到相关资讯，请尝试更换筛选条件</p>
+                      <Filter size={32} className="mb-3 text-slate-200" strokeWidth={1} />
+                      <p className="text-xs">没有找到相关资讯</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -824,150 +932,11 @@ export function ClassicDashboard({ onNavigateTo3D }) {
               {filteredNews.length > displayCount && (
                 <button 
                   onClick={() => setDisplayCount(prev => Math.min(prev + 5, 10))}
-                  className="mt-6 py-3 w-full border border-dashed border-slate-200 rounded-xl text-sm font-medium text-slate-500 hover:text-[#0066cc] hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-200 shrink-0"
+                  className="mt-4 py-2 w-full border border-dashed border-slate-200 rounded-xl text-xs font-medium text-slate-500 hover:text-[#0066cc] hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-200 shrink-0"
                 >
-                  加载更多资讯
+                  加载更多
                 </button>
               )}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column (3 cols) */}
-        <div className="col-span-3 flex flex-col gap-6 overflow-hidden h-full">
-          {/* Word Cloud */}
-          <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] p-5 border border-slate-100 shrink-0 flex flex-col relative h-[60%]">
-            {/* Background gradient for depth */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#0066cc]/5 to-transparent pointer-events-none"></div>
-            
-            <div className="flex items-center gap-2 mb-4 relative z-10">
-              <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center text-[#0066cc]">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
-                  <path d="M4 11a9 9 0 0 1 9 9"></path>
-                  <path d="M4 4a16 16 0 0 1 16 16"></path>
-                  <circle cx="5" cy="19" r="1"></circle>
-                </svg>
-              </div>
-              <h2 className="font-bold text-slate-800 text-lg">近七日资讯热词云</h2>
-            </div>
-            
-            <div 
-              className="flex-1 relative py-4 px-2 mt-2"
-              onMouseEnter={() => setIsWordCloudPaused(true)}
-              onMouseLeave={() => {
-                setIsWordCloudPaused(false);
-                setHoveredWord(null);
-              }}
-            >
-              <div className={`absolute inset-4 flex flex-wrap content-center justify-center gap-x-5 gap-y-4 transition-transform duration-1000 ${isWordCloudPaused ? 'scale-100' : 'animate-spin-slow scale-[0.85]'} origin-center`} style={{ animationDuration: '30s' }}>
-                {[
-                  { text: "智能体", heatScore: 100, changeRate: 18.2, color: "#ef4444" }, 
-                  { text: "OpenClaw", heatScore: 96, changeRate: 24.5, color: "#f97316" }, 
-                  { text: "具身智能", heatScore: 92, changeRate: 16.8, color: "#eab308" }, 
-                  { text: "人形机器人", heatScore: 89, changeRate: 14.3, color: "#3b82f6" }, 
-                  { text: "AI落地", heatScore: 86, changeRate: 11.7, color: "#8b5cf6" }, 
-                  { text: "智能经济", heatScore: 82, changeRate: 10.5, color: "#ec4899" }, 
-                  { text: "机器人", heatScore: 80, changeRate: 8.9, color: "#14b8a6" }, 
-                  { text: "企业AI", heatScore: 73, changeRate: 8.4, color: "#06b6d4" }, 
-                  { text: "落地", heatScore: 71, changeRate: 6.1, color: "#10b981" }, 
-                  { text: "执行", heatScore: 69, changeRate: 7.4, color: "#84cc16" }, 
-                  { text: "数字员工", heatScore: 67, changeRate: 15.2, color: "#6366f1" }, 
-                  { text: "世界模型", heatScore: 66, changeRate: 11.9, color: "#d946ef" }, 
-                  { text: "端侧AI", heatScore: 64, changeRate: 10.8, color: "#f43f5e" }, 
-                  { text: "AI硬件", heatScore: 63, changeRate: 9.2, color: "#0ea5e9" }, 
-                  { text: "大模型", heatScore: 62, changeRate: 5.6, color: "#3b82f6" }, 
-                  { text: "国产模型", heatScore: 60, changeRate: 7.1, color: "#8b5cf6" }, 
-                  { text: "算力", heatScore: 59, changeRate: 6.8, color: "#64748b" }
-                ].map((word, i) => {
-                  // Adjust font size range slightly to make them fit while maintaining visibility
-                  const fontSize = 14 + ((word.heatScore - 59) / (100 - 59)) * (24 - 14);
-                  const isHovered = hoveredWord === word.text;
-                  const isFaded = hoveredWord && !isHovered;
-                  
-                  return (
-                    <div 
-                      key={i} 
-                      className={`relative transition-all duration-300 cursor-pointer ${isWordCloudPaused ? '' : 'animate-spin-reverse-slow'} ${isHovered ? 'z-50' : 'z-0'}`}
-                      style={{ animationDuration: '30s' }}
-                      onMouseEnter={() => setHoveredWord(word.text)}
-                      onClick={() => {
-                        // Switch back to 3D view and automatically select the node matching this keyword
-                        onNavigateTo3D();
-                        // We dispatch a custom event to notify the App/Sidebar components to select this node
-                        const event = new CustomEvent('select-wordcloud-node', { detail: { keyword: word.text } });
-                        window.dispatchEvent(event);
-                      }}
-                    >
-                      <span 
-                        className={`font-bold transition-all duration-300 inline-block px-1 relative
-                          ${isHovered ? 'scale-125 drop-shadow-md z-50' : 'z-10'} 
-                          ${isFaded ? 'opacity-20 blur-[2px]' : 'opacity-90'}
-                        `}
-                        style={{ 
-                          fontSize: `${fontSize}px`,
-                          color: word.color,
-                          willChange: 'transform, opacity',
-                          textShadow: isHovered ? `0 0 12px ${word.color}80` : 'none'
-                        }}
-                      >
-                        {word.text}
-                      </span>
-                      
-                      {/* Tooltip */}
-                      <AnimatePresence>
-                        {isHovered && (
-                          <motion.div 
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 5 }}
-                            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-slate-800 text-white text-xs rounded-lg shadow-xl whitespace-nowrap z-[100] pointer-events-none flex flex-col gap-1 border border-slate-700"
-                          >
-                            <div className="flex items-center justify-between gap-4">
-                              <span className="text-slate-400">热度得分:</span>
-                              <span className="font-bold text-amber-400">{word.heatScore}</span>
-                            </div>
-                            <div className="flex items-center justify-between gap-4">
-                              <span className="text-slate-400">环比增长:</span>
-                              <span className="font-bold text-emerald-400">+{word.changeRate}%</span>
-                            </div>
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Shaanxi AI Dynamics */}
-          <div className="bg-white rounded-xl shadow-sm p-5 border border-slate-100 flex-1 flex flex-col min-h-0 h-[40%]">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center text-blue-600">
-                <Zap size={14} className="fill-blue-500/20" />
-              </div>
-              <h2 className="font-bold text-slate-800 text-lg tracking-tight">陕西公司AI动态先知</h2>
-            </div>
-            
-            <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-2 custom-scrollbar">
-              {mockDynamics.map((item, i) => (
-                <div 
-                  key={i} 
-                  className="flex gap-3 p-2.5 rounded-xl border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all duration-300 group cursor-pointer"
-                  onClick={() => setSelectedDynamic(item)}
-                >
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 flex flex-col items-center justify-center shrink-0 border border-slate-200/50 group-hover:from-blue-100 group-hover:to-blue-200 transition-colors">
-                    <span className="text-[10px] font-bold text-slate-400 group-hover:text-blue-500">{item.date.split('.')[1]}/{item.date.split('.')[2]}</span>
-                  </div>
-                  <div className="flex-1 min-w-0 flex flex-col justify-center">
-                    <span className="text-[9px] font-bold text-blue-500 mb-0.5 tracking-wider uppercase">{item.category}</span>
-                    <h3 className="text-xs font-bold text-slate-800 line-clamp-2 leading-snug group-hover:text-blue-700 transition-colors">
-                      {item.title}
-                    </h3>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
